@@ -1,0 +1,12 @@
+{
+  "comPort": "COM4",
+  "revision": "RevisionA",
+  "brightness": 20,
+  "orientation": "Portrait",
+  "resetOnStartup": false,
+  "refreshIntervalMs": 1000,
+  "sensorProvider": "Lhm",
+  "theme": "themes/default.json",
+  "width": 320,
+  "height": 480
+}

@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>MyTuringSystemMonitor</RootNamespace>
+    <AssemblyName>MyTuringSystemMonitor</AssemblyName>
+    <!-- GDI+ (System.Drawing) is Windows-only; the whole app targets Windows. -->
+    <UseWindowsForms>false</UseWindowsForms>
+    <!-- LibreHardwareMonitor reads sensors through a kernel driver and needs admin. -->
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <!-- Versions below are what `dotnet restore` resolved as latest-stable on this machine
+       (i.e. what `dotnet add package` produced). Pinned for reproducible builds; bump with
+       `dotnet add package <name>` rather than editing by hand. -->
+  <ItemGroup>
+    <!-- Serial wire protocol for the 3.5" screen (RevisionA). MIT, usausa/turing-smart-screen. -->
+    <PackageReference Include="TuringSmartScreenLib" Version="4.8.0" />
+    <!-- Builds an IScreenBuffer from a System.Drawing.Bitmap. -->
+    <PackageReference Include="TuringSmartScreenLib.Helpers.GdiPlus" Version="4.8.0" />
+    <!-- GDI+ is no longer in the shared framework since .NET 7. -->
+    <PackageReference Include="System.Drawing.Common" Version="10.0.12" />
+    <!-- No-admin CPU/RAM fallback sensor source. -->
+    <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="10.0.12" />
+    <!-- Full sensor set (CPU/GPU/RAM/temps/fans); needs admin. -->
+    <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.6" />
+    <!-- COM port enumeration for AUTO detection. -->
+    <PackageReference Include="System.IO.Ports" Version="10.0.12" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="config.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="themes\default.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,18 @@
+{
+  "name": "default",
+  "background": "#000000",
+  "widgets": [
+    { "type": "text",  "x": 20, "y": 16,  "label": "CPU", "fontSize": 26, "color": "#8AB4F8" },
+    { "type": "text",  "x": 20, "y": 52,  "sensor": "cpu.load", "format": "{0:F0}%", "fontSize": 64 },
+    { "type": "gauge", "x": 20, "y": 138, "width": 280, "height": 24, "sensor": "cpu.load", "color": "#8AB4F8" },
+    { "type": "text",  "x": 20, "y": 172, "sensor": "cpu.temp", "format": "{0:F0} °C", "fontSize": 22, "color": "#B0B0B0" },
+
+    { "type": "text",  "x": 20, "y": 236, "label": "GPU", "fontSize": 26, "color": "#F28B82" },
+    { "type": "text",  "x": 20, "y": 272, "sensor": "gpu.load", "format": "{0:F0}%", "fontSize": 64 },
+    { "type": "gauge", "x": 20, "y": 358, "width": 280, "height": 24, "sensor": "gpu.load", "color": "#F28B82" },
+    { "type": "text",  "x": 20, "y": 392, "sensor": "gpu.temp", "format": "{0:F0} °C", "fontSize": 22, "color": "#B0B0B0" },
+
+    { "type": "text",  "x": 20, "y": 430, "label": "RAM ", "sensor": "ram.load", "format": "{0:F0}%", "fontSize": 26, "color": "#81C995" },
+    { "type": "gauge", "x": 20, "y": 452, "width": 280, "height": 18, "sensor": "ram.load", "color": "#81C995" }
+  ]
+}
