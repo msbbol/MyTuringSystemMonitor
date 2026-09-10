@@ -1,3 +1,4 @@
+using System.Drawing.Imaging;
 using MyTuringSystemMonitor.App;
 using MyTuringSystemMonitor.Configuration;
 using MyTuringSystemMonitor.Hardware;
@@ -8,7 +9,33 @@ var baseDir = AppContext.BaseDirectory;
 
 void Log(string message) => Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] {message}");
 
-var config = ConfigLoader.LoadOrCreate(Path.Combine(baseDir, "config.json"));
+var calibrate = args.Any(a =>
+    a.Equals("calibrate", StringComparison.OrdinalIgnoreCase) ||
+    a.Equals("--calibrate", StringComparison.OrdinalIgnoreCase));
+
+var preview = args.Any(a =>
+    a.Equals("preview", StringComparison.OrdinalIgnoreCase) ||
+    a.Equals("--preview", StringComparison.OrdinalIgnoreCase));
+
+AppPaths.EnsureSeeded(baseDir);
+var config = ConfigLoader.LoadOrCreate(AppPaths.ConfigPath);
+
+// --- Preview mode --------------------------------------------------------------------------
+// `dotnet run --project src/MyTuringSystemMonitor -- preview` renders the configured theme with
+// sample data to theme-preview.png and exits — no hardware, no admin. Handy for tuning layout.
+if (preview)
+{
+    var previewTheme = ThemeCatalog.LoadByName(AppPaths.ThemesDir, config.Theme, AppPaths.FontsDir);
+    using var sampleSensors = new FakeSensorProvider();
+    sampleSensors.Initialize();
+    var snapshot = sampleSensors.Read();
+    var (pw, ph) = config.RenderSize();
+    using var frame = new GdiThemeRenderer().Render(previewTheme, snapshot, pw, ph);
+    var previewPath = Path.Combine(baseDir, "theme-preview.png");
+    frame.Save(previewPath, ImageFormat.Png);
+    Log($"Rendered theme '{previewTheme.Name}' at {pw}x{ph} to {previewPath}.");
+    return 0;
+}
 
 // --- Sensors -------------------------------------------------------------------------------
 ISensorProvider sensors = config.SensorProvider.ToLowerInvariant() switch
@@ -20,16 +47,16 @@ ISensorProvider sensors = config.SensorProvider.ToLowerInvariant() switch
 Log($"Sensor provider: {sensors.GetType().Name}");
 
 // --- Theme ---------------------------------------------------------------------------------
-var themePath = string.IsNullOrWhiteSpace(config.Theme) ? null : Path.Combine(baseDir, config.Theme);
-var theme = ThemeLoader.LoadOrDefault(themePath);
+var theme = ThemeCatalog.LoadByName(AppPaths.ThemesDir, config.Theme, AppPaths.FontsDir);
 Log($"Theme: {theme.Name} ({theme.Widgets.Count} widgets)");
 
 // --- Display -------------------------------------------------------------------------------
 IDisplayDevice device;
 if (string.Equals(config.DisplayProvider, "Null", StringComparison.OrdinalIgnoreCase))
 {
-    Log($"Display: Null (headless dry run) at {config.Width}x{config.Height} — no serial port opened.");
-    device = new NullDisplayDevice(config.Width, config.Height);
+    var (nw, nh) = config.RenderSize();
+    Log($"Display: Null (headless dry run) at {nw}x{nh} — no serial port opened.");
+    device = new NullDisplayDevice(nw, nh);
 }
 else
 {
@@ -45,21 +72,65 @@ else
         return 1;
     }
     Log($"Display: {config.Revision} on {port}, brightness {config.Brightness}%, reset-on-startup={config.ResetOnStartup}");
-    device = new TuringDisplayDevice(config.ToDisplayOptions(port));
+    device = new TuringDisplayDevice(config.ToDisplayOptions(port), Log);
 }
+
+// --- Calibration mode ----------------------------------------------------------------------
+// `dotnet run --project src/MyTuringSystemMonitor -- calibrate` pushes one diagnostic frame so
+// we can see exactly how the image maps to the panel (aspect / shear / orientation).
+if (calibrate)
+{
+    try
+    {
+        device.Initialize();
+        using var pattern = CalibrationImage.Create(device.Width, device.Height);
+        var pngPath = Path.Combine(baseDir, "calibration.png");
+        pattern.Save(pngPath, ImageFormat.Png);
+        device.Display(pattern);
+        Log($"Calibration frame sent ({device.Width}x{device.Height}). Reference image saved to {pngPath}.");
+        Log("Compare the panel to that image, then press Enter to exit.");
+        Console.ReadLine();
+    }
+    catch (Exception ex)
+    {
+        Log($"Calibration failed: {ex.Message}");
+    }
+    finally
+    {
+        device.Clear();
+        device.TurnOff();
+        device.Dispose();
+        sensors.Dispose();
+    }
+    return 0;
+}
+
 var renderer = new GdiThemeRenderer();
 var loop = new MonitorLoop(device, sensors, renderer, theme,
     TimeSpan.FromMilliseconds(config.RefreshIntervalMs), Log);
 
 // --- Run -----------------------------------------------------------------------------------
 using var cts = new CancellationTokenSource();
+
+// Ctrl+C and process exit both request a clean stop. Guard against a second call and against
+// the source already being disposed (ProcessExit can fire after the using-block disposed it).
+void RequestStop()
+{
+    try
+    {
+        if (!cts.IsCancellationRequested)
+            cts.Cancel();
+    }
+    catch (ObjectDisposedException) { /* already shutting down */ }
+}
+
 Console.CancelKeyPress += (_, e) =>
 {
     e.Cancel = true;      // let us shut down cleanly instead of hard-killing
     Log("Stopping…");
-    cts.Cancel();
+    RequestStop();
 };
-AppDomain.CurrentDomain.ProcessExit += (_, _) => cts.Cancel();
+AppDomain.CurrentDomain.ProcessExit += (_, _) => RequestStop();
 
 try
 {

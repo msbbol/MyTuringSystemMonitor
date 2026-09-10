@@ -29,7 +29,7 @@ public sealed class FakeSensorProvider : ISensorProvider
         // Deterministic-ish waves in [0,100] so gauges and text have something to show.
         double Wave(double phase) => 50 + 45 * Math.Sin((t + phase) * 0.5);
 
-        return new SensorSnapshot.Builder()
+        var builder = new SensorSnapshot.Builder()
             .Set(SensorKeys.CpuLoad, Wave(0))
             .Set(SensorKeys.CpuTemp, 40 + Wave(1) * 0.4)
             .Set(SensorKeys.CpuClock, 3000 + Wave(0) * 15)
@@ -37,10 +37,23 @@ public sealed class FakeSensorProvider : ISensorProvider
             .Set(SensorKeys.GpuLoad, Wave(3))
             .Set(SensorKeys.GpuTemp, 45 + Wave(4) * 0.4)
             .Set(SensorKeys.GpuPower, 30 + Wave(5) * 1.2)
+            .Set(SensorKeys.GpuMemoryUsed, 4096 + Wave(3) * 40)
             .Set(SensorKeys.RamLoad, Wave(6))
             .Set(SensorKeys.RamTotal, 32)
             .Set(SensorKeys.RamUsed, 32 * Wave(6) / 100.0)
-            .Build();
+            .Set(SensorKeys.DiskTotal, 1000)
+            .Set(SensorKeys.DiskUsed, 500)
+            .Set(SensorKeys.DiskFree, 500)
+            .Set(SensorKeys.DiskLoad, 50)
+            .Set(SensorKeys.NetDown, 7_400_000 + Wave(1) * 40_000)
+            .Set(SensorKeys.NetUp, 860_000 + Wave(2) * 8_000)
+            .Set(SensorKeys.ProcTopCpu, 12.6)
+            .SetText(SensorKeys.ProcTopName, "firefox")
+            .SetText(SensorKeys.CpuName, "12th Gen Intel(R) Core(TM) i7-12700H");
+
+        // Real wall-clock time so clock themes preview correctly.
+        SystemMetrics.AppendTime(builder);
+        return builder.Build();
     }
 
     public void Dispose() { }

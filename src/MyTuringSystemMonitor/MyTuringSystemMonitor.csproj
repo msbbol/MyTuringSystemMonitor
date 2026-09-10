@@ -29,11 +29,15 @@
     <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.6" />
     <!-- COM port enumeration for AUTO detection. -->
     <PackageReference Include="System.IO.Ports" Version="10.0.12" />
+    <!-- Parses mathoudebine-style theme.yaml files. -->
+    <PackageReference Include="YamlDotNet" Version="18.1.0" />
   </ItemGroup>
 
   <ItemGroup>
     <None Update="config.json" CopyToOutputDirectory="PreserveNewest" />
-    <None Update="themes\default.json" CopyToOutputDirectory="PreserveNewest" />
+    <!-- Bundle the whole themes tree (JSON themes + vendored mathoudebine themes) and fonts. -->
+    <None Include="themes\**\*" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="fonts\**\*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

@@ -33,12 +33,25 @@ public sealed class AppConfig
     /// <summary>"Turing" (the real serial display) or "Null" (headless dry run: renders frames, no port).</summary>
     public string DisplayProvider { get; set; } = "Turing";
 
-    /// <summary>Path to a theme JSON file (relative to the app dir). Falls back to the built-in theme if missing.</summary>
-    public string? Theme { get; set; } = "themes/default.json";
+    /// <summary>Theme name (folder name for YAML themes, file name without extension for JSON themes).</summary>
+    public string? Theme { get; set; } = "default";
 
     /// <summary>Fallback frame size used only if the driver reports a 0-size screen.</summary>
     public int Width { get; set; } = 320;
     public int Height { get; set; } = 480;
+
+    /// <summary>
+    /// Canvas size for the configured orientation: portrait keeps the smaller edge as width,
+    /// landscape swaps so width is the larger edge (e.g. 320x480 -> 480x320).
+    /// </summary>
+    public (int Width, int Height) RenderSize()
+    {
+        var lo = Math.Min(Width, Height);
+        var hi = Math.Max(Width, Height);
+        var landscape = Orientation.Equals("Landscape", StringComparison.OrdinalIgnoreCase)
+                        || Orientation.Equals("ReverseLandscape", StringComparison.OrdinalIgnoreCase);
+        return landscape ? (hi, lo) : (lo, hi);
+    }
 
     public DisplayDeviceOptions ToDisplayOptions(string resolvedPort) => new()
     {

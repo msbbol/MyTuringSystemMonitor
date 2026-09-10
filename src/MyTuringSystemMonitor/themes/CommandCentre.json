@@ -1,0 +1,26 @@
+{
+  "name": "CommandCentre",
+  "background": "#0F2529",
+  "backgroundGradientTo": "#0A1A1E",
+  "widgets": [
+    { "type": "text", "label": "COMMAND CENTRE", "x": 160, "y": 40, "anchor": "mm", "color": "#F5A623", "fontFamily": "Consolas", "fontSize": 26, "pixelFontSize": true, "bold": true },
+    { "type": "text", "label": "ALL SYSTEMS / ON TIME", "x": 160, "y": 72, "anchor": "mm", "color": "#8AA0A2", "fontFamily": "Consolas", "fontSize": 12, "pixelFontSize": true, "bold": true },
+
+    { "type": "panel", "x": 20, "y": 104, "width": 280, "height": 176, "fill": "#123033", "cornerRadius": 18 },
+    { "type": "clock", "centerX": 96, "centerY": 192, "radius": 64, "faceColor": "#16383C", "faceStroke": "#1F4A4F", "tickColor": "#F5A623", "handColor": "#EAF2FF", "secondColor": "#F5A623", "hubColor": "#F5A623" },
+
+    { "type": "datetime", "format": "HH:mm", "x": 262, "y": 176, "anchor": "mm", "color": "#EAF2FF", "fontFamily": "Consolas", "fontSize": 42, "pixelFontSize": true, "bold": true },
+    { "type": "text", "label": "DIGITAL / ANALOGUE", "x": 262, "y": 214, "anchor": "mm", "color": "#8AA0A2", "fontFamily": "Consolas", "fontSize": 10, "pixelFontSize": true, "bold": true },
+    { "type": "datetime", "format": "ss", "x": 262, "y": 242, "anchor": "mm", "color": "#F5A623", "fontFamily": "Consolas", "fontSize": 20, "pixelFontSize": true, "bold": true },
+
+    { "type": "datetime", "format": "yyyy-MM-dd", "x": 160, "y": 312, "anchor": "mm", "color": "#EAF2FF", "fontFamily": "Consolas", "fontSize": 22, "pixelFontSize": true, "bold": true },
+
+    { "type": "panel", "x": 20, "y": 344, "width": 280, "height": 48, "fill": "#123033", "cornerRadius": 12 },
+    { "type": "text", "label": "CPU", "x": 36, "y": 368, "anchor": "lm", "color": "#F5A623", "fontFamily": "Consolas", "fontSize": 16, "pixelFontSize": true, "bold": true },
+    { "type": "text", "sensor": "cpu.load", "format": "{0:F0}%", "x": 120, "y": 368, "anchor": "lm", "color": "#EAF2FF", "fontFamily": "Consolas", "fontSize": 18, "pixelFontSize": true, "bold": true },
+    { "type": "text", "sensor": "cpu.temp", "format": "{0:F0} °C", "x": 300, "y": 368, "anchor": "rm", "color": "#8AA0A2", "fontFamily": "Consolas", "fontSize": 14, "pixelFontSize": true, "bold": true },
+
+    { "type": "gauge", "x": 20, "y": 430, "width": 280, "height": 10, "sensor": "time.second", "min": 0, "max": 60, "color": "#F5A623", "background": "#1C3538", "cornerRadius": 5 },
+    { "type": "text", "label": "CLOCK STUDIO  •  APPLET 01", "x": 160, "y": 460, "anchor": "mm", "color": "#5C7274", "fontFamily": "Consolas", "fontSize": 10, "pixelFontSize": true, "bold": true }
+  ]
+}

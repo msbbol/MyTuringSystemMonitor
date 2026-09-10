@@ -11,6 +11,7 @@ namespace MyTuringSystemMonitor.Sensors;
 public sealed class LibreHardwareSensorProvider : ISensorProvider
 {
     private readonly Computer _computer;
+    private readonly SystemDynamics _dynamics = new();
     private bool _opened;
 
     public LibreHardwareSensorProvider()
@@ -51,6 +52,10 @@ public sealed class LibreHardwareSensorProvider : ISensorProvider
         foreach (var hw in _computer.Hardware.Where(h => h.HardwareType == HardwareType.Memory))
             ReadMemory(hw, b);
 
+        SystemMetrics.AppendDisk(b);
+        SystemMetrics.AppendTime(b);
+        _dynamics.Append(b);
+
         return b.Build();
     }
 
@@ -67,6 +72,7 @@ public sealed class LibreHardwareSensorProvider : ISensorProvider
 
     private static void ReadCpu(IHardware hw, SensorSnapshot.Builder b)
     {
+        b.SetText(SensorKeys.CpuName, string.IsNullOrWhiteSpace(hw.Name) ? SystemMetrics.CpuName() : hw.Name);
         b.Set(SensorKeys.CpuLoad, Pick(hw, SensorType.Load, "CPU Total"));
         b.Set(SensorKeys.CpuTemp, Pick(hw, SensorType.Temperature, "CPU Package", "Core (Tctl/Tdie)", "Core Max"));
         b.Set(SensorKeys.CpuPower, Pick(hw, SensorType.Power, "CPU Package", "Package"));
@@ -78,6 +84,7 @@ public sealed class LibreHardwareSensorProvider : ISensorProvider
         b.Set(SensorKeys.GpuLoad, Pick(hw, SensorType.Load, "GPU Core", "D3D 3D"));
         b.Set(SensorKeys.GpuTemp, Pick(hw, SensorType.Temperature, "GPU Core", "GPU Hot Spot"));
         b.Set(SensorKeys.GpuPower, Pick(hw, SensorType.Power, "GPU Package", "GPU Power", "GPU PPT"));
+        b.Set(SensorKeys.GpuMemoryUsed, Pick(hw, SensorType.SmallData, "GPU Memory Used", "D3D Dedicated Memory Used"));
     }
 
     private static void ReadMemory(IHardware hw, SensorSnapshot.Builder b)

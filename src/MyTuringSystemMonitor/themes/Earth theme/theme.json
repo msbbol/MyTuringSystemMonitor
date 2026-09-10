@@ -1,0 +1,132 @@
+{
+  "name": "Earth theme",
+  "background": "#000000",
+  "backgroundImage": "background.png",
+  "widgets": [
+    {
+      "type": "radial",
+      "centerX": 29,
+      "centerY": 104,
+      "radius": 14,
+      "thickness": 3,
+      "sensor": "cpu.load",
+      "min": 0,
+      "max": 100,
+      "angleStart": 216,
+      "angleEnd": 216,
+      "barColor": "#FFFFFF",
+      "drawTrack": false,
+      "roundCap": false
+    },
+    {
+      "type": "gauge",
+      "x": 13,
+      "y": 160,
+      "width": 140,
+      "height": 13,
+      "sensor": "cpu.load",
+      "min": 0,
+      "max": 100,
+      "color": "#00FFFF",
+      "background": "#000000"
+    },
+    {
+      "type": "gauge",
+      "x": 13,
+      "y": 250,
+      "width": 140,
+      "height": 13,
+      "sensor": "ram.load",
+      "min": 0,
+      "max": 100,
+      "color": "#00FFFF",
+      "background": "#000000"
+    },
+    {
+      "type": "gauge",
+      "x": 13,
+      "y": 205,
+      "width": 140,
+      "height": 13,
+      "sensor": "gpu.load",
+      "min": 0,
+      "max": 100,
+      "color": "#00FFFF",
+      "background": "#000000"
+    },
+    {
+      "type": "text",
+      "x": 123,
+      "y": 185,
+      "fontFamily": "Consolas",
+      "fontSize": 18,
+      "pixelFontSize": true,
+      "bold": true,
+      "color": "#FFFFFF",
+      "sensor": "gpu.load",
+      "format": "{0:F0}",
+      "fallback": "--"
+    },
+    {
+      "type": "text",
+      "x": 128,
+      "y": 97,
+      "fontFamily": "Consolas",
+      "fontSize": 24,
+      "pixelFontSize": true,
+      "bold": true,
+      "color": "#FFFFFF",
+      "sensor": "cpu.temp",
+      "format": "{0:F0}",
+      "fallback": "--"
+    },
+    {
+      "type": "text",
+      "x": 123,
+      "y": 139,
+      "fontFamily": "Consolas",
+      "fontSize": 18,
+      "pixelFontSize": true,
+      "bold": true,
+      "color": "#FFFFFF",
+      "sensor": "cpu.load",
+      "format": "{0:F0}",
+      "fallback": "--"
+    },
+    {
+      "type": "text",
+      "x": 123,
+      "y": 230,
+      "fontFamily": "Consolas",
+      "fontSize": 18,
+      "pixelFontSize": true,
+      "bold": true,
+      "color": "#FFFFFF",
+      "sensor": "ram.load",
+      "format": "{0:F0}",
+      "fallback": "--"
+    },
+    {
+      "type": "datetime",
+      "x": 13,
+      "y": 30,
+      "fontFamily": "Consolas",
+      "fontSize": 30,
+      "pixelFontSize": true,
+      "bold": true,
+      "color": "#FFFFFF",
+      "format": "HH:mm"
+    },
+    {
+      "type": "datetime",
+      "x": 9,
+      "y": 55,
+      "fontFamily": "Consolas",
+      "fontSize": 24,
+      "pixelFontSize": true,
+      "bold": true,
+      "color": "#FFFFFF",
+      "format": "yyyy-MM-dd"
+    }
+  ]
+}

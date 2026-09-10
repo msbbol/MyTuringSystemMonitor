@@ -31,4 +31,13 @@ public static class ConfigLoader
         catch { /* read-only dir: fall back to in-memory defaults */ }
         return config;
     }
+
+    /// <summary>Writes <paramref name="config"/> to <paramref name="path"/> as indented JSON.</summary>
+    public static void Save(string path, AppConfig config)
+    {
+        var dir = Path.GetDirectoryName(path);
+        if (!string.IsNullOrEmpty(dir))
+            Directory.CreateDirectory(dir);
+        File.WriteAllText(path, JsonSerializer.Serialize(config, WriteOptions));
+    }
 }

@@ -1,0 +1,98 @@
+{
+  "name": "A EVA UI 002",
+  "background": "#000000",
+  "backgroundImage": "background.png",
+  "widgets": [
+    {
+      "type": "text",
+      "x": 23,
+      "y": 183,
+      "fontFamily": "Consolas",
+      "fontSize": 40,
+      "pixelFontSize": true,
+      "bold": true,
+      "color": "#FF8000",
+      "sensor": "gpu.temp",
+      "format": "{0:F0}",
+      "fallback": "--"
+    },
+    {
+      "type": "text",
+      "x": 23,
+      "y": 100,
+      "fontFamily": "Consolas",
+      "fontSize": 40,
+      "pixelFontSize": true,
+      "bold": true,
+      "color": "#FF8040",
+      "sensor": "cpu.temp",
+      "format": "{0:F0}",
+      "fallback": "--"
+    },
+    {
+      "type": "text",
+      "x": 105,
+      "y": 183,
+      "fontFamily": "Consolas",
+      "fontSize": 40,
+      "pixelFontSize": true,
+      "bold": true,
+      "color": "#FF8000",
+      "sensor": "ram.load",
+      "format": "{0:F0}",
+      "fallback": "--"
+    },
+    {
+      "type": "text",
+      "x": 30,
+      "y": 426,
+      "fontFamily": "Consolas",
+      "fontSize": 18,
+      "pixelFontSize": true,
+      "bold": true,
+      "color": "#FFFF80",
+      "sensor": "net.up",
+      "format": "{0:F0}",
+      "humanize": "bytes",
+      "fallback": "--"
+    },
+    {
+      "type": "text",
+      "x": 125,
+      "y": 426,
+      "fontFamily": "Consolas",
+      "fontSize": 18,
+      "pixelFontSize": true,
+      "bold": true,
+      "color": "#FFFF80",
+      "sensor": "net.down",
+      "format": "{0:F0}",
+      "humanize": "bytes",
+      "fallback": "--"
+    },
+    {
+      "type": "datetime",
+      "x": 206,
+      "y": 249,
+      "fontFamily": "Consolas",
+      "fontSize": 24,
+      "pixelFontSize": true,
+      "bold": true,
+      "color": "#C6C600",
+      "format": "HH:mm"
+    },
+    {
+      "type": "text",
+      "x": 147,
+      "y": 300,
+      "fontFamily": "Consolas",
+      "fontSize": 24,
+      "pixelFontSize": true,
+      "bold": true,
+      "color": "#000000",
+      "sensor": "disk.load",
+      "format": "{0:F0}",
+      "fallback": "--"
+    }
+  ]
+}

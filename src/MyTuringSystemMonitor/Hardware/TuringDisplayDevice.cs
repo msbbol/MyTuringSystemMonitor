@@ -11,11 +11,13 @@ namespace MyTuringSystemMonitor.Hardware;
 public sealed class TuringDisplayDevice : IDisplayDevice
 {
     private readonly DisplayDeviceOptions _options;
+    private readonly Action<string>? _log;
     private IScreen? _screen;
 
-    public TuringDisplayDevice(DisplayDeviceOptions options)
+    public TuringDisplayDevice(DisplayDeviceOptions options, Action<string>? log = null)
     {
         _options = options;
+        _log = log;
         Width = options.FallbackWidth;
         Height = options.FallbackHeight;
     }
@@ -39,6 +41,11 @@ public sealed class TuringDisplayDevice : IDisplayDevice
             Thread.Sleep(500); // let it re-enumerate before we talk to it again
         }
 
+        // Wake the panel: a previous run's clean shutdown calls ScreenOff(), and the device
+        // stays off (needing a USB replug) unless we turn it back on here. ScreenOn() is not a
+        // reset, so it doesn't trigger the re-enumeration problem above.
+        screen.ScreenOn();
+
         screen.Orientation = MapOrientation(_options.Orientation);
         screen.Clear();
 
@@ -48,6 +55,8 @@ public sealed class TuringDisplayDevice : IDisplayDevice
         // Trust the driver's reported size, but fall back to the native 320x480 if it reports 0.
         Width = screen.Width > 0 ? screen.Width : _options.FallbackWidth;
         Height = screen.Height > 0 ? screen.Height : _options.FallbackHeight;
+
+        _log?.Invoke($"Driver reports {screen.Width}x{screen.Height} for orientation {_options.Orientation}; rendering at {Width}x{Height}.");
 
         _screen = screen;
     }

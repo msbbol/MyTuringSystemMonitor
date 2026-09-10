@@ -9,6 +9,7 @@ namespace MyTuringSystemMonitor.Sensors;
 /// </summary>
 public sealed class PerformanceCounterSensorProvider : ISensorProvider
 {
+    private readonly SystemDynamics _dynamics = new();
     private PerformanceCounter? _cpu;
     private PerformanceCounter? _ramCommitted;
 
@@ -28,9 +29,13 @@ public sealed class PerformanceCounterSensorProvider : ISensorProvider
         if (_cpu is null) Initialize();
 
         var b = new SensorSnapshot.Builder();
+        b.SetText(SensorKeys.CpuName, SystemMetrics.CpuName());
         b.Set(SensorKeys.CpuLoad, _cpu!.NextValue());
         if (_ramCommitted is not null)
             b.Set(SensorKeys.RamLoad, _ramCommitted.NextValue());
+        SystemMetrics.AppendDisk(b);
+        SystemMetrics.AppendTime(b);
+        _dynamics.Append(b);
         return b.Build();
     }
 

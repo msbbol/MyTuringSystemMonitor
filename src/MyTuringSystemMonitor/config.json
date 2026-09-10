@@ -6,7 +6,8 @@
   "resetOnStartup": false,
   "refreshIntervalMs": 1000,
   "sensorProvider": "Lhm",
-  "theme": "themes/default.json",
+  "displayProvider": "Turing",
+  "theme": "3.5inchTheme2",
   "width": 320,
   "height": 480
 }

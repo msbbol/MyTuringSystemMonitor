@@ -26,18 +26,29 @@ public static class ThemeLoader
     public static Theme Load(string path)
     {
         var json = File.ReadAllText(path);
-        return Parse(json);
+        return Parse(json, Path.GetDirectoryName(Path.GetFullPath(path)));
     }
 
-    public static Theme Parse(string json)
+    /// <param name="baseDir">Directory that a relative <c>backgroundImage</c> resolves against.</param>
+    public static Theme Parse(string json, string? baseDir = null)
     {
         var dto = JsonSerializer.Deserialize<ThemeDto>(json, Options)
                   ?? throw new JsonException("Theme JSON deserialized to null.");
+
+        string? background = null;
+        if (!string.IsNullOrWhiteSpace(dto.BackgroundImage))
+        {
+            background = Path.IsPathRooted(dto.BackgroundImage) || baseDir is null
+                ? dto.BackgroundImage
+                : Path.Combine(baseDir, dto.BackgroundImage);
+        }
 
         return new Theme
         {
             Name = dto.Name ?? "unnamed",
             Background = dto.Background ?? "#000000",
+            BackgroundGradientTo = dto.BackgroundGradientTo,
+            BackgroundImagePath = background,
             Widgets = dto.Widgets,
         };
     }
@@ -57,6 +68,11 @@ public static class ThemeLoader
     {
         public string? Name { get; set; }
         public string? Background { get; set; }
+        public string? BackgroundGradientTo { get; set; }
+
+        /// <summary>Path to a full-screen background image, relative to the theme file.</summary>
+        public string? BackgroundImage { get; set; }
+
         public List<Widget> Widgets { get; set; } = new();
     }
 
@@ -74,8 +90,13 @@ public static class ThemeLoader
             {
                 "text" => JsonSerializer.Deserialize<TextWidget>(raw, options)!,
                 "gauge" => JsonSerializer.Deserialize<GaugeWidget>(raw, options)!,
+                "radial" => JsonSerializer.Deserialize<RadialWidget>(raw, options)!,
+                "datetime" => JsonSerializer.Deserialize<DateTimeWidget>(raw, options)!,
+                "panel" => JsonSerializer.Deserialize<PanelWidget>(raw, options)!,
+                "clock" => JsonSerializer.Deserialize<AnalogClockWidget>(raw, options)!,
+                "sparkline" => JsonSerializer.Deserialize<SparklineWidget>(raw, options)!,
                 null => throw new JsonException("Widget is missing a \"type\" property."),
-                _ => throw new JsonException($"Unknown widget type '{type}'. Expected 'text' or 'gauge'."),
+                _ => throw new JsonException($"Unknown widget type '{type}'. Expected text/gauge/radial/datetime/panel/clock/sparkline."),
             };
         }
 

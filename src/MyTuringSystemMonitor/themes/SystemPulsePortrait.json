@@ -1,0 +1,47 @@
+{
+  "name": "SystemPulsePortrait",
+  "background": "#090D14",
+  "backgroundGradientTo": "#0C1626",
+  "widgets": [
+    { "type": "text", "label": "SYSTEM / PULSE", "x": 16, "y": 16, "anchor": "lm", "color": "#EAF2FF", "fontFamily": "Consolas", "fontSize": 15, "pixelFontSize": true, "bold": true },
+    { "type": "text", "label": "LOCAL PERFORMANCE TELEMETRY", "x": 16, "y": 36, "anchor": "lm", "color": "#5C6B82", "fontFamily": "Consolas", "fontSize": 9, "pixelFontSize": true, "bold": true },
+    { "type": "datetime", "format": "HH:mm", "x": 304, "y": 18, "anchor": "rm", "color": "#35E0D0", "fontFamily": "Consolas", "fontSize": 15, "pixelFontSize": true, "bold": true },
+    { "type": "datetime", "format": "ddd d", "x": 304, "y": 36, "anchor": "rm", "color": "#5C6B82", "fontFamily": "Consolas", "fontSize": 9, "pixelFontSize": true, "bold": true },
+
+    { "type": "panel", "x": 12, "y": 52, "width": 296, "height": 150, "fill": "#0F1826", "cornerRadius": 16 },
+    { "type": "text", "label": "CPU / PROCESSOR", "x": 28, "y": 70, "anchor": "lm", "color": "#5C6B82", "fontFamily": "Consolas", "fontSize": 9, "pixelFontSize": true, "bold": true },
+    { "type": "text", "sensor": "cpu.load", "format": "{0:F0}%", "x": 28, "y": 110, "anchor": "lm", "color": "#EAF2FF", "fontFamily": "Consolas", "fontSize": 48, "pixelFontSize": true, "bold": true },
+    { "type": "text", "textSensor": "cpu.name", "fallback": "CPU", "x": 28, "y": 150, "anchor": "lm", "color": "#8B9BB4", "fontFamily": "Consolas", "fontSize": 10, "pixelFontSize": true, "bold": true },
+    { "type": "text", "label": "TEMP ", "sensor": "cpu.temp", "format": "{0:F0} °C", "fallback": "--", "x": 28, "y": 166, "anchor": "lm", "color": "#5C6B82", "fontFamily": "Consolas", "fontSize": 9, "pixelFontSize": true, "bold": true },
+    { "type": "sparkline", "sensor": "cpu.load", "x": 28, "y": 178, "width": 268, "height": 20, "min": 0, "max": 100, "color": "#35E0D0", "thickness": 2, "maxSamples": 48, "style": "line" },
+
+    { "type": "panel", "x": 12, "y": 208, "width": 296, "height": 66, "fill": "#0F1826", "cornerRadius": 16 },
+    { "type": "text", "label": "GPU / GRAPHICS", "x": 28, "y": 224, "anchor": "lm", "color": "#5C6B82", "fontFamily": "Consolas", "fontSize": 9, "pixelFontSize": true, "bold": true },
+    { "type": "text", "sensor": "gpu.load", "format": "{0:F0}%", "x": 28, "y": 250, "anchor": "lm", "color": "#EAF2FF", "fontFamily": "Consolas", "fontSize": 20, "pixelFontSize": true, "bold": true },
+    { "type": "text", "sensor": "gpu.temp", "format": "{0:F0}°C", "fallback": "--", "x": 296, "y": 228, "anchor": "rm", "color": "#8B9BB4", "fontFamily": "Consolas", "fontSize": 9, "pixelFontSize": true, "bold": true },
+    { "type": "gauge", "x": 120, "y": 250, "width": 176, "height": 6, "sensor": "gpu.load", "min": 0, "max": 100, "color": "#35E0D0", "background": "#1B2A3D", "cornerRadius": 3 },
+
+    { "type": "panel", "x": 12, "y": 280, "width": 144, "height": 70, "fill": "#0F1826", "cornerRadius": 16 },
+    { "type": "text", "label": "MEMORY", "x": 26, "y": 296, "anchor": "lm", "color": "#5C6B82", "fontFamily": "Consolas", "fontSize": 9, "pixelFontSize": true, "bold": true },
+    { "type": "text", "sensor": "ram.load", "format": "{0:F0}%", "x": 26, "y": 320, "anchor": "lm", "color": "#EAF2FF", "fontFamily": "Consolas", "fontSize": 18, "pixelFontSize": true, "bold": true },
+    { "type": "text", "sensor": "ram.used", "format": "{0:F1} GB", "x": 26, "y": 340, "anchor": "lm", "color": "#8B9BB4", "fontFamily": "Consolas", "fontSize": 9, "pixelFontSize": true, "bold": true },
+    { "type": "radial", "centerX": 128, "centerY": 318, "radius": 20, "thickness": 6, "sensor": "ram.load", "min": 0, "max": 100, "barColor": "#35E0D0", "trackColor": "#1B2A3D", "roundCap": true },
+
+    { "type": "panel", "x": 164, "y": 280, "width": 144, "height": 70, "fill": "#0F1826", "cornerRadius": 16 },
+    { "type": "text", "label": "NETWORK", "x": 178, "y": 296, "anchor": "lm", "color": "#5C6B82", "fontFamily": "Consolas", "fontSize": 9, "pixelFontSize": true, "bold": true },
+    { "type": "text", "label": "↓ ", "sensor": "net.down", "humanize": "bytes", "x": 178, "y": 322, "anchor": "lm", "color": "#35E0D0", "fontFamily": "Consolas", "fontSize": 16, "pixelFontSize": true, "bold": true },
+    { "type": "sparkline", "sensor": "net.down", "x": 250, "y": 306, "width": 48, "height": 32, "min": 0, "max": 0, "color": "#35E0D0", "maxSamples": 18, "style": "bars" },
+
+    { "type": "panel", "x": 12, "y": 356, "width": 144, "height": 70, "fill": "#0F1826", "cornerRadius": 16 },
+    { "type": "text", "label": "STORAGE I/O", "x": 26, "y": 372, "anchor": "lm", "color": "#5C6B82", "fontFamily": "Consolas", "fontSize": 9, "pixelFontSize": true, "bold": true },
+    { "type": "text", "sensor": "disk.load", "format": "{0:F0}%", "x": 26, "y": 400, "anchor": "lm", "color": "#EAF2FF", "fontFamily": "Consolas", "fontSize": 16, "pixelFontSize": true, "bold": true },
+    { "type": "text", "sensor": "disk.free", "format": "{0:F0} G free", "x": 150, "y": 400, "anchor": "rm", "color": "#5C6B82", "fontFamily": "Consolas", "fontSize": 8, "pixelFontSize": true, "bold": true },
+
+    { "type": "panel", "x": 164, "y": 356, "width": 144, "height": 70, "fill": "#0F1826", "cornerRadius": 16 },
+    { "type": "text", "label": "THERMALS", "x": 178, "y": 372, "anchor": "lm", "color": "#5C6B82", "fontFamily": "Consolas", "fontSize": 9, "pixelFontSize": true, "bold": true },
+    { "type": "text", "sensor": "cpu.temp", "format": "{0:F0}°", "fallback": "--", "x": 178, "y": 400, "anchor": "lm", "color": "#F5A623", "fontFamily": "Consolas", "fontSize": 18, "pixelFontSize": true, "bold": true },
+    { "type": "text", "label": "GPU ", "sensor": "gpu.temp", "format": "{0:F0}°", "fallback": "--", "x": 298, "y": 400, "anchor": "rm", "color": "#8B9BB4", "fontFamily": "Consolas", "fontSize": 10, "pixelFontSize": true, "bold": true },
+
+    { "type": "text", "label": "APPLET 03  •  SYSTEM PULSE", "x": 160, "y": 452, "anchor": "mm", "color": "#5C6B82", "fontFamily": "Consolas", "fontSize": 9, "pixelFontSize": true, "bold": true }
+  ]
+}

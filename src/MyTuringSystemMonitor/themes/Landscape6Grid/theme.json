@@ -1,0 +1,86 @@
+{
+  "name": "Landscape6Grid",
+  "background": "#000000",
+  "backgroundImage": "background.png",
+  "widgets": [
+    {
+      "type": "text",
+      "x": 220,
+      "y": 208,
+      "fontFamily": "Consolas",
+      "fontSize": 40,
+      "pixelFontSize": true,
+      "bold": true,
+      "color": "#FFFFFF",
+      "sensor": "gpu.temp",
+      "format": "{0:F0}",
+      "fallback": "--"
+    },
+    {
+      "type": "text",
+      "x": 62,
+      "y": 208,
+      "fontFamily": "Consolas",
+      "fontSize": 40,
+      "pixelFontSize": true,
+      "bold": true,
+      "color": "#FFFFFF",
+      "sensor": "gpu.load",
+      "format": "{0:F0}",
+      "fallback": "--"
+    },
+    {
+      "type": "text",
+      "x": 220,
+      "y": 60,
+      "fontFamily": "Consolas",
+      "fontSize": 40,
+      "pixelFontSize": true,
+      "bold": true,
+      "color": "#FFFFFF",
+      "sensor": "cpu.temp",
+      "format": "{0:F0}",
+      "fallback": "--"
+    },
+    {
+      "type": "text",
+      "x": 62,
+      "y": 60,
+      "fontFamily": "Consolas",
+      "fontSize": 40,
+      "pixelFontSize": true,
+      "bold": true,
+      "color": "#FFFFFF",
+      "sensor": "cpu.load",
+      "format": "{0:F0}",
+      "fallback": "--"
+    },
+    {
+      "type": "text",
+      "x": 361,
+      "y": 60,
+      "fontFamily": "Consolas",
+      "fontSize": 40,
+      "pixelFontSize": true,
+      "bold": true,
+      "color": "#FFFFFF",
+      "sensor": "cpu.clock",
+      "format": "{0:F1}",
+      "scale": 0.001,
+      "fallback": "--"
+    },
+    {
+      "type": "text",
+      "x": 372,
+      "y": 208,
+      "fontFamily": "Consolas",
+      "fontSize": 40,
+      "pixelFontSize": true,
+      "bold": true,
+      "color": "#FFFFFF",
+      "sensor": "ram.load",
+      "format": "{0:F0}",
+      "fallback": "--"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "name": "DeskDisplay",
+  "background": "#0C1E38",
+  "backgroundGradientTo": "#0A1424",
+  "widgets": [
+    { "type": "text", "label": "DESK DISPLAY", "x": 160, "y": 44, "anchor": "mm", "color": "#5AC8FA", "fontFamily": "Consolas", "fontSize": 30, "pixelFontSize": true, "bold": true },
+    { "type": "text", "label": "MAKE TIME LOOK GOOD", "x": 160, "y": 76, "anchor": "mm", "color": "#8B9BB4", "fontFamily": "Consolas", "fontSize": 12, "pixelFontSize": true, "bold": true },
+
+    { "type": "panel", "x": 30, "y": 120, "width": 260, "height": 96, "fill": "#12233F", "cornerRadius": 18 },
+    { "type": "datetime", "format": "HH:mm:ss", "x": 160, "y": 168, "anchor": "mm", "color": "#EAF2FF", "fontFamily": "Consolas", "fontSize": 46, "pixelFontSize": true, "bold": true },
+
+    { "type": "datetime", "format": "dddd, d MMMM", "x": 160, "y": 252, "anchor": "mm", "color": "#EAF2FF", "fontFamily": "Segoe UI", "fontSize": 20, "pixelFontSize": true, "bold": true },
+
+    { "type": "text", "label": "MINUTE FLOW", "x": 30, "y": 300, "color": "#8B9BB4", "fontFamily": "Consolas", "fontSize": 12, "pixelFontSize": true, "bold": true },
+    { "type": "gauge", "x": 30, "y": 322, "width": 260, "height": 12, "sensor": "time.second", "min": 0, "max": 60, "color": "#5AC8FA", "background": "#1B2B47", "cornerRadius": 6 },
+
+    { "type": "text", "label": "CLOCK STUDIO  •  APPLET 01", "x": 160, "y": 448, "anchor": "mm", "color": "#5C6B82", "fontFamily": "Consolas", "fontSize": 11, "pixelFontSize": true, "bold": true }
+  ]
+}

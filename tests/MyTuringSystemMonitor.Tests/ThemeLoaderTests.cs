@@ -43,6 +43,40 @@ public class ThemeLoaderTests
     }
 
     [Fact]
+    public void Parse_resolves_background_image_relative_to_theme_file()
+    {
+        const string json = """{ "name": "t", "backgroundImage": "background.png", "widgets": [] }""";
+        var theme = ThemeLoader.Parse(json, baseDir: @"C:\themes\Fancy");
+
+        Assert.Equal(Path.Combine(@"C:\themes\Fancy", "background.png"), theme.BackgroundImagePath);
+    }
+
+    [Fact]
+    public void ThemeCatalog_discovers_folder_json_themes()
+    {
+        var dir = Path.Combine(Path.GetTempPath(), "mtsm-folder-" + Guid.NewGuid().ToString("N"));
+        var themeDir = Path.Combine(dir, "VendorTheme");
+        Directory.CreateDirectory(themeDir);
+        File.WriteAllText(Path.Combine(themeDir, "theme.json"),
+            """{ "name": "VendorTheme", "backgroundImage": "background.png", "widgets": [] }""");
+
+        try
+        {
+            var entry = Assert.Single(ThemeCatalog.Discover(dir));
+            Assert.Equal("VendorTheme", entry.Name);
+            Assert.Equal(ThemeKind.Json, entry.Kind);
+
+            // Loading it resolves the background next to the theme file.
+            var theme = ThemeCatalog.Load(entry, fontsDir: dir);
+            Assert.Equal(Path.Combine(themeDir, "background.png"), theme.BackgroundImagePath);
+        }
+        finally
+        {
+            Directory.Delete(dir, recursive: true);
+        }
+    }
+
+    [Fact]
     public void LoadOrDefault_returns_builtin_when_file_missing()
     {
         var theme = ThemeLoader.LoadOrDefault("does-not-exist.json");

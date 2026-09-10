@@ -1,0 +1,131 @@
+{
+  "name": "NZXT_W",
+  "background": "#000000",
+  "backgroundImage": "background.png",
+  "widgets": [
+    {
+      "type": "gauge",
+      "x": 25,
+      "y": 89,
+      "width": 120,
+      "height": 13,
+      "sensor": "cpu.load",
+      "min": 0,
+      "max": 100,
+      "color": "#00FFFF",
+      "background": "#000000"
+    },
+    {
+      "type": "gauge",
+      "x": 184,
+      "y": 89,
+      "width": 120,
+      "height": 13,
+      "sensor": "gpu.load",
+      "min": 0,
+      "max": 100,
+      "color": "#00FFFF",
+      "background": "#000000"
+    },
+    {
+      "type": "text",
+      "x": 238,
+      "y": 47,
+      "fontFamily": "Consolas",
+      "fontSize": 30,
+      "pixelFontSize": true,
+      "bold": true,
+      "color": "#000000",
+      "sensor": "gpu.temp",
+      "format": "{0:F0}",
+      "fallback": "--"
+    },
+    {
+      "type": "text",
+      "x": 76,
+      "y": 47,
+      "fontFamily": "Consolas",
+      "fontSize": 30,
+      "pixelFontSize": true,
+      "bold": true,
+      "color": "#000000",
+      "sensor": "cpu.temp",
+      "format": "{0:F0}",
+      "fallback": "--"
+    },
+    {
+      "type": "text",
+      "x": 76,
+      "y": 149,
+      "fontFamily": "Consolas",
+      "fontSize": 30,
+      "pixelFontSize": true,
+      "bold": true,
+      "color": "#000000",
+      "sensor": "ram.load",
+      "format": "{0:F0}",
+      "fallback": "--"
+    },
+    {
+      "type": "text",
+      "x": 76,
+      "y": 252,
+      "fontFamily": "Consolas",
+      "fontSize": 30,
+      "pixelFontSize": true,
+      "bold": true,
+      "color": "#000000",
+      "sensor": "net.up",
+      "format": "{0:F0}",
+      "humanize": "bytes",
+      "fallback": "--"
+    },
+    {
+      "type": "text",
+      "x": 238,
+      "y": 252,
+      "fontFamily": "Consolas",
+      "fontSize": 30,
+      "pixelFontSize": true,
+      "bold": true,
+      "color": "#000000",
+      "sensor": "net.down",
+      "format": "{0:F0}",
+      "humanize": "bytes",
+      "fallback": "--"
+    },
+    {
+      "type": "datetime",
+      "x": 354,
+      "y": 65,
+      "fontFamily": "Consolas",
+      "fontSize": 18,
+      "pixelFontSize": true,
+      "bold": true,
+      "color": "#FFFFFF",
+      "format": "HH:mm"
+    },
+    {
+      "type": "text",
+      "x": 66,
+      "y": 20,
+      "fontFamily": "Consolas",
+      "fontSize": 18,
+      "pixelFontSize": true,
+      "bold": true,
+      "color": "#7CBEF3",
+      "label": "9900K"
+    },
+    {
+      "type": "text",
+      "x": 225,
+      "y": 20,
+      "fontFamily": "Consolas",
+      "fontSize": 18,
+      "pixelFontSize": true,
+      "bold": true,
+      "color": "#00FF40",
+      "label": "3080ti"
+    }
+  ]
+}

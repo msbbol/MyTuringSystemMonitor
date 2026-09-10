@@ -18,6 +18,26 @@ public sealed class GdiThemeRenderer : IThemeRenderer
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
             g.Clear(ParseBackground(theme.Background));
 
+            if (!string.IsNullOrWhiteSpace(theme.BackgroundGradientTo))
+            {
+                using var brush = new LinearGradientBrush(
+                    new Rectangle(0, 0, bitmap.Width, bitmap.Height),
+                    ParseBackground(theme.Background),
+                    ParseBackground(theme.BackgroundGradientTo),
+                    LinearGradientMode.Vertical);
+                g.FillRectangle(brush, 0, 0, bitmap.Width, bitmap.Height);
+            }
+
+            if (!string.IsNullOrWhiteSpace(theme.BackgroundImagePath) && File.Exists(theme.BackgroundImagePath))
+            {
+                try
+                {
+                    using var bg = Image.FromFile(theme.BackgroundImagePath);
+                    g.DrawImage(bg, 0, 0, bitmap.Width, bitmap.Height);
+                }
+                catch { /* fall back to the solid background already painted */ }
+            }
+
             foreach (var widget in theme.Widgets)
                 widget.Render(g, snapshot);
 

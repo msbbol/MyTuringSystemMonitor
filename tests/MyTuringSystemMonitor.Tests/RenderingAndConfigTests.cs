@@ -22,16 +22,22 @@ public class RenderingAndConfigTests
     {
         var renderer = new GdiThemeRenderer();
 
-        // Default theme has a CPU gauge at x=20,y=138,w=280,h=24 with fill color #8AB4F8 (B=0xF8).
+        // Locate the CPU-load gauge in the default theme and sample near its left edge,
+        // so this test survives layout tweaks.
+        var gauge = Theme.Default.Widgets.OfType<GaugeWidget>()
+            .First(g => g.Sensor == SensorKeys.CpuLoad);
+        var px = gauge.X + 4;
+        var py = gauge.Y + gauge.Height / 2;
+
         var full = new SensorSnapshot.Builder().Set(SensorKeys.CpuLoad, 100.0).Build();
         var empty = new SensorSnapshot.Builder().Set(SensorKeys.CpuLoad, 0.0).Build();
 
         using var fullBmp = renderer.Render(Theme.Default, full, 320, 480);
         using var emptyBmp = renderer.Render(Theme.Default, empty, 320, 480);
 
-        // A point well inside the gauge: filled (high blue) at 100%, track color (low blue) at 0%.
-        var filledPixel = fullBmp.GetPixel(40, 150);
-        var trackPixel = emptyBmp.GetPixel(40, 150);
+        // Fill color #8AB4F8 has high blue; track color #1E2A38 has low blue.
+        var filledPixel = fullBmp.GetPixel(px, py);
+        var trackPixel = emptyBmp.GetPixel(px, py);
 
         Assert.True(filledPixel.B > 200, $"expected fill blue, got {filledPixel}");
         Assert.True(trackPixel.B < 150, $"expected track color, got {trackPixel}");
@@ -48,6 +54,18 @@ public class RenderingAndConfigTests
         Assert.Equal(DisplayOrientation.Portrait, options.Orientation);
         Assert.Equal(20, options.BrightnessPercent);
         Assert.False(options.ResetOnStartup); // the hard-won default
+    }
+
+    [Theory]
+    [InlineData("Portrait", 320, 480)]
+    [InlineData("Landscape", 480, 320)]
+    [InlineData("ReverseLandscape", 480, 320)]
+    public void AppConfig_render_size_follows_orientation(string orientation, int expectedW, int expectedH)
+    {
+        var config = new AppConfig { Width = 320, Height = 480, Orientation = orientation };
+        var (w, h) = config.RenderSize();
+        Assert.Equal(expectedW, w);
+        Assert.Equal(expectedH, h);
     }
 
     [Fact]

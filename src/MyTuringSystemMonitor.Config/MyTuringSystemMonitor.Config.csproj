@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <RootNamespace>MyTuringSystemMonitor.Config</RootNamespace>
+    <AssemblyName>MyTuringSystemMonitor.Config</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MyTuringSystemMonitor\MyTuringSystemMonitor.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Bundle themes + fonts so the configurator can seed the data folder and render previews. -->
+    <None Include="..\MyTuringSystemMonitor\themes\**\*" LinkBase="themes" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\MyTuringSystemMonitor\fonts\**\*" LinkBase="fonts" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

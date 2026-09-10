@@ -1,0 +1,83 @@
+{
+  "name": "B cyberpunk",
+  "background": "#000000",
+  "backgroundImage": "background.png",
+  "widgets": [
+    {
+      "type": "text",
+      "x": 342,
+      "y": 189,
+      "fontFamily": "Consolas",
+      "fontSize": 18,
+      "pixelFontSize": true,
+      "bold": true,
+      "color": "#FFFFFF",
+      "sensor": "gpu.load",
+      "format": "{0:F0}",
+      "fallback": "--"
+    },
+    {
+      "type": "text",
+      "x": 299,
+      "y": 188,
+      "fontFamily": "Consolas",
+      "fontSize": 18,
+      "pixelFontSize": true,
+      "bold": true,
+      "color": "#FFFFFF",
+      "sensor": "cpu.load",
+      "format": "{0:F0}",
+      "fallback": "--"
+    },
+    {
+      "type": "text",
+      "x": 385,
+      "y": 189,
+      "fontFamily": "Consolas",
+      "fontSize": 18,
+      "pixelFontSize": true,
+      "bold": true,
+      "color": "#FFFFFF",
+      "sensor": "net.up",
+      "format": "{0:F0}",
+      "humanize": "bytes",
+      "fallback": "--"
+    },
+    {
+      "type": "text",
+      "x": 428,
+      "y": 189,
+      "fontFamily": "Consolas",
+      "fontSize": 18,
+      "pixelFontSize": true,
+      "bold": true,
+      "color": "#FFFFFF",
+      "sensor": "net.down",
+      "format": "{0:F0}",
+      "humanize": "bytes",
+      "fallback": "--"
+    },
+    {
+      "type": "datetime",
+      "x": 40,
+      "y": 244,
+      "fontFamily": "Consolas",
+      "fontSize": 24,
+      "pixelFontSize": true,
+      "bold": true,
+      "color": "#FFFFFF",
+      "format": "HH:mm"
+    },
+    {
+      "type": "datetime",
+      "x": 325,
+      "y": 212,
+      "fontFamily": "Consolas",
+      "fontSize": 18,
+      "pixelFontSize": true,
+      "bold": true,
+      "color": "#FFFFFF",
+      "format": "yyyy-MM-dd"
+    }
+  ]
+}
