@@ -30,34 +30,69 @@ public sealed class AppConfig
     /// <summary>"Lhm" (full sensors, needs admin), "PerfCounter" (CPU/RAM, no admin), or "Fake" (dry run).</summary>
     public string SensorProvider { get; set; } = "Lhm";
 
+    /// <summary>
+    /// Measure frame rate (the <c>fps</c> sensor). Keeps a Windows trace session open while the
+    /// monitor runs; turn it off if you don't use the FPS readout.
+    /// </summary>
+    public bool FrameRateCounter { get; set; } = true;
+
     /// <summary>"Turing" (the real serial display) or "Null" (headless dry run: renders frames, no port).</summary>
     public string DisplayProvider { get; set; } = "Turing";
 
     /// <summary>Theme name (folder name for YAML themes, file name without extension for JSON themes).</summary>
     public string? Theme { get; set; } = "default";
 
+    /// <summary>
+    /// Port of the control web UI hosted by the Windows service. It only listens on localhost.
+    /// Changing it takes effect after the service restarts.
+    /// </summary>
+    public int WebPort { get; set; } = DefaultWebPort;
+
+    public const int DefaultWebPort = 5321;
+
     /// <summary>Fallback frame size used only if the driver reports a 0-size screen.</summary>
     public int Width { get; set; } = 320;
     public int Height { get; set; } = 480;
 
     /// <summary>
-    /// Canvas size for the configured orientation: portrait keeps the smaller edge as width,
+    /// Rotates <paramref name="configured"/> onto the theme's axis while keeping the user's
+    /// reverse-variant preference (e.g. ReversePortrait + landscape theme -> ReverseLandscape).
+    /// </summary>
+    public static string AlignOrientation(string configured, bool themeIsLandscape)
+    {
+        var reversed = configured.StartsWith("Reverse", StringComparison.OrdinalIgnoreCase);
+        return themeIsLandscape
+            ? (reversed ? "ReverseLandscape" : "Landscape")
+            : (reversed ? "ReversePortrait" : "Portrait");
+    }
+
+    /// <summary>
+    /// The orientation to actually drive the panel with. A theme that declares an axis wins, so
+    /// picking a landscape theme rotates the screen automatically.
+    /// </summary>
+    public string EffectiveOrientation(bool? themeIsLandscape = null) =>
+        themeIsLandscape is null ? Orientation : AlignOrientation(Orientation, themeIsLandscape.Value);
+
+    /// <summary>
+    /// Canvas size for the effective orientation: portrait keeps the smaller edge as width,
     /// landscape swaps so width is the larger edge (e.g. 320x480 -> 480x320).
     /// </summary>
-    public (int Width, int Height) RenderSize()
+    public (int Width, int Height) RenderSize(bool? themeIsLandscape = null)
     {
         var lo = Math.Min(Width, Height);
         var hi = Math.Max(Width, Height);
-        var landscape = Orientation.Equals("Landscape", StringComparison.OrdinalIgnoreCase)
-                        || Orientation.Equals("ReverseLandscape", StringComparison.OrdinalIgnoreCase);
+        var orientation = EffectiveOrientation(themeIsLandscape);
+        var landscape = orientation.Equals("Landscape", StringComparison.OrdinalIgnoreCase)
+                        || orientation.Equals("ReverseLandscape", StringComparison.OrdinalIgnoreCase);
         return landscape ? (hi, lo) : (lo, hi);
     }
 
-    public DisplayDeviceOptions ToDisplayOptions(string resolvedPort) => new()
+    public DisplayDeviceOptions ToDisplayOptions(string resolvedPort, bool? themeIsLandscape = null) => new()
     {
         Revision = Enum.TryParse<DisplayRevision>(Revision, ignoreCase: true, out var rev) ? rev : DisplayRevision.RevisionA,
         PortName = resolvedPort,
-        Orientation = Enum.TryParse<DisplayOrientation>(Orientation, ignoreCase: true, out var o) ? o : DisplayOrientation.Portrait,
+        ConfiguredPort = ComPort,
+        Orientation = Enum.TryParse<DisplayOrientation>(EffectiveOrientation(themeIsLandscape), ignoreCase: true, out var o) ? o : DisplayOrientation.Portrait,
         BrightnessPercent = Brightness,
         ResetOnStartup = ResetOnStartup,
         FallbackWidth = Width,

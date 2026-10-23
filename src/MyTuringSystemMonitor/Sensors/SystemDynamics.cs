@@ -1,71 +1,93 @@
 using System.Diagnostics;
-using System.Net.NetworkInformation;
 
 namespace MyTuringSystemMonitor.Sensors;
 
 /// <summary>
-/// Stateful, rate-based readings that need a previous sample: network throughput and the busiest
-/// process by CPU. One instance per provider; call <see cref="Append"/> once per refresh.
+/// Stateful, rate-based readings that need a previous sample: GPU utilisation, network throughput
+/// and the busiest process by CPU. One instance per provider; call <see cref="Append"/> once per
+/// refresh, after the provider's own readings.
 /// </summary>
-public sealed class SystemDynamics
+public sealed class SystemDynamics : IDisposable
 {
+    private readonly GpuEngineMeter _gpu = new();
     private readonly NetworkMeter _network = new();
+    private readonly DiskIoMeter _disk = new();
     private readonly ProcessCpuMonitor _process = new();
+    private readonly PeakTracker _peaks = new();
+    private readonly FrameRateMeter? _frameRate;
+
+    /// <param name="frameRate">Measure FPS (keeps an ETW trace session open while running).</param>
+    public SystemDynamics(bool frameRate = true)
+    {
+        _frameRate = frameRate ? new FrameRateMeter() : null;
+    }
 
     public void Append(SensorSnapshot.Builder builder)
     {
-        var (down, up) = _network.Sample();
-        builder.Set(SensorKeys.NetDown, down);
-        builder.Set(SensorKeys.NetUp, up);
+        if (_frameRate is not null)
+        {
+            // null while nothing is rendering — themes then show their fallback instead of "0".
+            var frames = _frameRate.Sample();
+            builder.Set(SensorKeys.Fps, frames?.Fps);
+            builder.SetText(SensorKeys.FpsApp, frames?.App);
+        }
+
+        // Overrides a provider's own gpu.load (e.g. LHM's discrete-GPU "GPU Core", which sits at 0 %
+        // on switchable-graphics laptops) whenever Windows' per-adapter counters are available.
+        if (_gpu.Sample() is { } gpuLoad)
+            builder.Set(SensorKeys.GpuLoad, gpuLoad);
+
+        var (down, up, interfaces) = _network.Sample();
+        _peaks.Publish(builder, SensorKeys.NetDown, "total:down", down);
+        _peaks.Publish(builder, SensorKeys.NetUp, "total:up", up);
+        for (var i = 0; i < interfaces.Count && i < SensorKeys.MaxDevices; i++)
+        {
+            var (adapter, downRate, upRate, _) = interfaces[i];
+            var slot = i + 1;
+            builder.SetText(SensorKeys.NetName(slot), adapter);
+            // Peaks follow the device, not the slot: adapters coming and going must not inherit
+            // a maximum reached by whoever held that slot before them.
+            _peaks.Publish(builder, SensorKeys.NetDownAt(slot), adapter + ":down", downRate);
+            _peaks.Publish(builder, SensorKeys.NetUpAt(slot), adapter + ":up", upRate);
+        }
+
+        var drives = _disk.Sample();
+        for (var i = 0; i < drives.Count && i < SensorKeys.MaxDevices; i++)
+        {
+            var (drive, readRate, writeRate) = drives[i];
+            var slot = i + 1;
+            builder.SetText(SensorKeys.DiskName(slot), drive);
+            _peaks.Publish(builder, SensorKeys.DiskRead(slot), drive + ":read", readRate);
+            _peaks.Publish(builder, SensorKeys.DiskWrite(slot), drive + ":write", writeRate);
+        }
 
         var (name, cpu) = _process.Top();
         builder.Set(SensorKeys.ProcTopCpu, cpu);
         builder.SetText(SensorKeys.ProcTopName, name);
     }
 
-    /// <summary>Sums received/sent bytes across active interfaces and reports the per-second rate.</summary>
-    private sealed class NetworkMeter
+    public void Dispose() => _frameRate?.Dispose();
+
+    /// <summary>
+    /// Remembers the highest value each throughput sensor has reached since the monitor started, so
+    /// themes can show "now / peak". Peaks are per device (identity), not per theme slot.
+    /// </summary>
+    public sealed class PeakTracker
     {
-        private long _prevRx;
-        private long _prevTx;
-        private DateTime _prevTime;
-        private bool _initialised;
+        private readonly Dictionary<string, double> _peaks = new(StringComparer.OrdinalIgnoreCase);
 
-        public (double downBytesPerSec, double upBytesPerSec) Sample()
+        /// <summary>Emits <paramref name="value"/> under <paramref name="key"/> and its running maximum under "<c>key</c>.peak".</summary>
+        public void Publish(SensorSnapshot.Builder builder, string key, string identity, double value)
         {
-            long rx = 0, tx = 0;
-            foreach (var ni in NetworkInterface.GetAllNetworkInterfaces())
-            {
-                if (ni.OperationalStatus != OperationalStatus.Up) continue;
-                if (ni.NetworkInterfaceType is NetworkInterfaceType.Loopback or NetworkInterfaceType.Tunnel) continue;
-                try
-                {
-                    var stats = ni.GetIPv4Statistics();
-                    rx += stats.BytesReceived;
-                    tx += stats.BytesSent;
-                }
-                catch { /* some interfaces don't expose stats */ }
-            }
+            builder.Set(key, value);
+            if (double.IsNaN(value)) return;
 
-            var now = DateTime.UtcNow;
-            double down = 0, up = 0;
-            if (_initialised)
-            {
-                var seconds = (now - _prevTime).TotalSeconds;
-                if (seconds > 0)
-                {
-                    down = Math.Max(0, (rx - _prevRx) / seconds);
-                    up = Math.Max(0, (tx - _prevTx) / seconds);
-                }
-            }
-
-            _prevRx = rx;
-            _prevTx = tx;
-            _prevTime = now;
-            _initialised = true;
-            return (down, up);
+            var peak = Math.Max(_peaks.GetValueOrDefault(identity), value);
+            _peaks[identity] = peak;
+            builder.Set(SensorKeys.Peak(key), peak);
         }
     }
+
 
     /// <summary>Finds the process using the most CPU since the previous sample.</summary>
     private sealed class ProcessCpuMonitor

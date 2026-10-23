@@ -23,6 +23,12 @@ public sealed record DisplayDeviceOptions
 {
     public DisplayRevision Revision { get; init; } = DisplayRevision.RevisionA;
     public string PortName { get; init; } = "COM4";
+
+    /// <summary>
+    /// The port as written in config ("COM4" or "AUTO"), used to re-find the device when it
+    /// re-enumerates after sleep. Null means "same as <see cref="PortName"/>".
+    /// </summary>
+    public string? ConfiguredPort { get; init; }
     public DisplayOrientation Orientation { get; init; } = DisplayOrientation.Portrait;
 
     /// <summary>Brightness 0–100 (%), applied once at startup.</summary>

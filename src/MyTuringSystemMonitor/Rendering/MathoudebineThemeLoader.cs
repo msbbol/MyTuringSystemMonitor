@@ -43,6 +43,8 @@ public static class MathoudebineThemeLoader
         return new Theme
         {
             Name = new DirectoryInfo(themeDir).Name,
+            Orientation = ThemeOrientationHelper.Parse(Str(Get(Get(root, "display"), "DISPLAY_ORIENTATION")))
+                          ?? ThemeOrientationHelper.InferFromImage(backgroundPath),
             Background = "#000000",
             BackgroundImagePath = backgroundPath,
             Widgets = widgets,
@@ -69,7 +71,16 @@ public static class MathoudebineThemeLoader
         AddGraph(widgets, Get(mem, "GRAPH"), SensorKeys.RamLoad);
         AddRadial(widgets, Get(mem, "RADIAL"), SensorKeys.RamLoad, fontsDir);
         AddText(widgets, Get(mem, "PERCENT_TEXT"), SensorKeys.RamLoad, "{0:F0}", "%", 1, fontsDir);
+        // Sizes are shown in MB ("M"); the sensors are in GB.
         AddText(widgets, Get(mem, "USED"), SensorKeys.RamUsed, "{0:F0}", " M", 1024, fontsDir);
+        AddText(widgets, Get(mem, "FREE"), SensorKeys.RamFree, "{0:F0}", " M", 1024, fontsDir);
+        AddText(widgets, Get(mem, "TOTAL"), SensorKeys.RamTotal, "{0:F0}", " M", 1024, fontsDir);
+
+        var swap = Get(Get(stats, "MEMORY"), "SWAP");
+        AddGraph(widgets, Get(swap, "GRAPH"), SensorKeys.SwapLoad);
+        AddRadial(widgets, Get(swap, "RADIAL"), SensorKeys.SwapLoad, fontsDir);
+        AddText(widgets, Get(swap, "PERCENT_TEXT"), SensorKeys.SwapLoad, "{0:F0}", "%", 1, fontsDir);
+        AddText(widgets, Get(swap, "USED"), SensorKeys.SwapUsed, "{0:F0}", " M", 1024, fontsDir);
 
         var disk = Get(stats, "DISK");
         AddGraph(widgets, Get(Get(disk, "USED"), "GRAPH"), SensorKeys.DiskLoad);

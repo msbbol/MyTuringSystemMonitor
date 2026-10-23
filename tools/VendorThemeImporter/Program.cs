@@ -12,10 +12,14 @@ using System.Text.Json.Nodes;
 //
 // Usage: dotnet run --project tools/VendorThemeImporter -- [<configDir>] [<themesDir>]
 
-var configDir = args.Length > 0 ? args[0] : @"New themes\config";
-var themesDir = args.Length > 1 ? args[1] : @"src\MyTuringSystemMonitor\themes";
+// Relative defaults are resolved against the repo root, which we locate by walking up from the
+// current directory and then from this exe — `dotnet run` doesn't guarantee a particular cwd.
+var root = FindRepoRoot() ?? Directory.GetCurrentDirectory();
+var configDir = Resolve(args.Length > 0 ? args[0] : @"New themes\config", root);
+var themesDir = Resolve(args.Length > 1 ? args[1] : @"src\MyTuringSystemMonitor\themes", root);
 
 if (!Directory.Exists(configDir)) { Console.Error.WriteLine($"No such directory: {configDir}"); return 1; }
+Console.WriteLine($"Reading {configDir}\n  ->   {themesDir}\n");
 Directory.CreateDirectory(themesDir);
 
 var imported = 0;
@@ -39,6 +43,26 @@ foreach (var file in Directory.GetFiles(configDir, "*.data").OrderBy(f => f))
 
 Console.WriteLine($"\nImported {imported} theme(s), skipped {skipped}.");
 return 0;
+
+static string Resolve(string path, string root) =>
+    Path.IsPathRooted(path) ? path : Path.GetFullPath(Path.Combine(root, path));
+
+/// <summary>Walks up from the cwd, then from this exe, looking for the repo root.</summary>
+static string? FindRepoRoot()
+{
+    foreach (var start in new[] { Directory.GetCurrentDirectory(), AppContext.BaseDirectory })
+    {
+        var dir = new DirectoryInfo(start);
+        while (dir is not null)
+        {
+            if (Directory.Exists(Path.Combine(dir.FullName, "New themes")) &&
+                Directory.Exists(Path.Combine(dir.FullName, "src")))
+                return dir.FullName;
+            dir = dir.Parent;
+        }
+    }
+    return null;
+}
 
 static string? Import(string file, string themesDir)
 {
@@ -72,6 +96,7 @@ static string? Import(string file, string themesDir)
     var theme = new JsonObject
     {
         ["name"] = Path.GetFileName(folder),
+        ["orientation"] = landscape ? "landscape" : "portrait",
         ["background"] = "#000000",
         ["backgroundImage"] = "background.png",
         ["widgets"] = widgets,

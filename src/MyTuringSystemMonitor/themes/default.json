@@ -1,5 +1,6 @@
 {
   "name": "default",
+  "orientation": "portrait",
   "background": "#000000",
   "widgets": [
     { "type": "text",  "x": 16, "y": 8,   "label": "CPU", "fontSize": 20, "color": "#8AB4F8" },

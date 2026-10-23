@@ -27,6 +27,8 @@ public sealed class SensorSnapshot
 
     public IReadOnlyDictionary<string, double?> Values => _values;
 
+    public IReadOnlyDictionary<string, string?> Texts => _texts;
+
     /// <summary>Returns the numeric value for <paramref name="key"/>, or null if missing/unavailable.</summary>
     public double? Get(string key) => _values.TryGetValue(key, out var v) ? v : null;
 

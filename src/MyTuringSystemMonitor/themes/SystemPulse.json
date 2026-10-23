@@ -1,5 +1,6 @@
 {
   "name": "SystemPulse",
+  "orientation": "portrait",
   "background": "#0B1220",
   "backgroundGradientTo": "#0A1A2A",
   "widgets": [

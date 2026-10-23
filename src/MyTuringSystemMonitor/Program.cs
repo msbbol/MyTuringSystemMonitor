@@ -29,7 +29,7 @@ if (preview)
     using var sampleSensors = new FakeSensorProvider();
     sampleSensors.Initialize();
     var snapshot = sampleSensors.Read();
-    var (pw, ph) = config.RenderSize();
+    var (pw, ph) = config.RenderSize(MonitorFactory.IsLandscape(previewTheme));
     using var frame = new GdiThemeRenderer().Render(previewTheme, snapshot, pw, ph);
     var previewPath = Path.Combine(baseDir, "theme-preview.png");
     frame.Save(previewPath, ImageFormat.Png);
@@ -38,41 +38,29 @@ if (preview)
 }
 
 // --- Sensors -------------------------------------------------------------------------------
-ISensorProvider sensors = config.SensorProvider.ToLowerInvariant() switch
-{
-    "fake" => new FakeSensorProvider(),
-    "perfcounter" => new PerformanceCounterSensorProvider(),
-    _ => new LibreHardwareSensorProvider(),
-};
+var sensors = MonitorFactory.CreateSensors(config);
 Log($"Sensor provider: {sensors.GetType().Name}");
 
 // --- Theme ---------------------------------------------------------------------------------
-var theme = ThemeCatalog.LoadByName(AppPaths.ThemesDir, config.Theme, AppPaths.FontsDir);
-Log($"Theme: {theme.Name} ({theme.Widgets.Count} widgets)");
+var theme = MonitorFactory.LoadTheme(config);
+
+// A theme designed for a given axis rotates the panel automatically; the user's reverse-variant
+// preference (e.g. ReversePortrait) is preserved.
+var themeLandscape = MonitorFactory.IsLandscape(theme);
+Log($"Theme: {theme.Name} ({theme.Widgets.Count} widgets), orientation {config.EffectiveOrientation(themeLandscape)}" +
+    (themeLandscape is null ? " (from config)" : " (from theme)"));
 
 // --- Display -------------------------------------------------------------------------------
 IDisplayDevice device;
-if (string.Equals(config.DisplayProvider, "Null", StringComparison.OrdinalIgnoreCase))
+try
 {
-    var (nw, nh) = config.RenderSize();
-    Log($"Display: Null (headless dry run) at {nw}x{nh} — no serial port opened.");
-    device = new NullDisplayDevice(nw, nh);
+    device = MonitorFactory.CreateDevice(config, theme, Log);
 }
-else
+catch (Exception ex)
 {
-    string port;
-    try
-    {
-        port = ComPortResolver.Resolve(config.ComPort);
-    }
-    catch (Exception ex)
-    {
-        Log(ex.Message);
-        sensors.Dispose();
-        return 1;
-    }
-    Log($"Display: {config.Revision} on {port}, brightness {config.Brightness}%, reset-on-startup={config.ResetOnStartup}");
-    device = new TuringDisplayDevice(config.ToDisplayOptions(port), Log);
+    Log(ex.Message);
+    sensors.Dispose();
+    return 1;
 }
 
 // --- Calibration mode ----------------------------------------------------------------------

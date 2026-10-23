@@ -115,7 +115,7 @@ public sealed class MainForm : Form
         Controls.Add(SectionHeader("System Monitor Configuration", rightX, ref y));
 
         _theme.DropDownStyle = ComboBoxStyle.DropDownList;
-        _theme.SelectedIndexChanged += (_, _) => UpdatePreview();
+        _theme.SelectedIndexChanged += (_, _) => OnThemeChanged();
         AddRow("Theme", _theme, rightX, labelW, controlX, controlW, ref y);
 
         _sensors.DropDownStyle = ComboBoxStyle.DropDownList;
@@ -134,6 +134,7 @@ public sealed class MainForm : Form
             new Item("None (headless dry run)", "Null"),
         });
         AddRow("Display output", _display, rightX, labelW, controlX, controlW, ref y);
+
 
         _refresh.Minimum = 100;
         _refresh.Maximum = 60000;
@@ -245,6 +246,32 @@ public sealed class MainForm : Form
 
     // ---- Preview ------------------------------------------------------------------------------
 
+    /// <summary>
+    /// Picking a theme rotates the screen to the axis it was designed for, keeping the user's
+    /// reverse-variant choice. Then the preview redraws at the new canvas size.
+    /// </summary>
+    private void OnThemeChanged()
+    {
+        try
+        {
+            var name = _theme.SelectedItem?.ToString();
+            var theme = ThemeCatalog.LoadByName(AppPaths.ThemesDir, name, AppPaths.FontsDir);
+            if (theme.Orientation is { } axis)
+            {
+                var aligned = AppConfig.AlignOrientation(
+                    TagOf(_orientation) ?? _config.Orientation,
+                    axis == ThemeOrientation.Landscape);
+                SelectByTag(_orientation, aligned, 0);   // fires SelectedIndexChanged -> UpdatePreview
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Theme orientation sync failed: {ex}");
+        }
+
+        UpdatePreview();
+    }
+
     private void UpdatePreview()
     {
         try
@@ -277,9 +304,19 @@ public sealed class MainForm : Form
             MessageBoxButtons.OK, MessageBoxIcon.Information);
     }
 
-    private void OnSaveAndRun(object? sender, EventArgs e)
+    private async void OnSaveAndRun(object? sender, EventArgs e)
     {
         Save();
+
+        // If the Windows service is running it owns the COM port — ask it to apply the settings
+        // rather than starting a second monitor that would fight it for the screen.
+        if (await TryRestartServiceAsync())
+        {
+            MessageBox.Show(this, "Settings applied: the monitor service restarted with them.",
+                "Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
         var exe = ResolveConsoleExe();
         if (exe is null)
         {
@@ -305,6 +342,24 @@ public sealed class MainForm : Form
         {
             MessageBox.Show(this, $"Failed to start the monitor:\n{ex.Message}", "Error",
                 MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    /// <summary>POSTs a restart to the local service's control API; false if the service isn't there.</summary>
+    private async Task<bool> TryRestartServiceAsync()
+    {
+        try
+        {
+            using var http = new System.Net.Http.HttpClient { Timeout = TimeSpan.FromSeconds(3) };
+            using var request = new System.Net.Http.HttpRequestMessage(
+                System.Net.Http.HttpMethod.Post, $"http://localhost:{_config.WebPort}/api/control/restart");
+            request.Headers.Add("X-Turing-Monitor", "1");   // the service refuses writes without it
+            using var response = await http.SendAsync(request);
+            return response.IsSuccessStatusCode;
+        }
+        catch
+        {
+            return false;
         }
     }
 

@@ -1,5 +1,6 @@
 {
   "name": "CommandCentre",
+  "orientation": "portrait",
   "background": "#0F2529",
   "backgroundGradientTo": "#0A1A1E",
   "widgets": [

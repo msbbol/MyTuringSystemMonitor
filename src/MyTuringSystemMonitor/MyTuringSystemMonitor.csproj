@@ -29,6 +29,8 @@
     <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.6" />
     <!-- COM port enumeration for AUTO detection. -->
     <PackageReference Include="System.IO.Ports" Version="10.0.12" />
+    <!-- Reads ETW present events to measure frame rate (the PresentMon approach). -->
+    <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="3.2.6" />
     <!-- Parses mathoudebine-style theme.yaml files. -->
     <PackageReference Include="YamlDotNet" Version="18.1.0" />
   </ItemGroup>

@@ -1,5 +1,6 @@
-{
+﻿{
   "name": "3.5inchTheme1",
+  "orientation": "portrait",
   "background": "#000000",
   "backgroundImage": "background.png",
   "widgets": [

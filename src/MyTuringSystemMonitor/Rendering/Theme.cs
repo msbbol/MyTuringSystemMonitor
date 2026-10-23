@@ -10,6 +10,13 @@ namespace MyTuringSystemMonitor.Rendering;
 public sealed class Theme
 {
     public string Name { get; init; } = "default";
+
+    /// <summary>
+    /// The axis this theme's layout was designed for. The app switches the panel to match it
+    /// (keeping the user's reverse-variant preference); null means "works either way".
+    /// </summary>
+    public ThemeOrientation? Orientation { get; init; }
+
     public string Background { get; init; } = "#000000";
 
     /// <summary>When set, the background is a vertical gradient from <see cref="Background"/> to this.</summary>

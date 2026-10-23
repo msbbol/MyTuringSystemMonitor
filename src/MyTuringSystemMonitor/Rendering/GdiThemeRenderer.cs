@@ -8,7 +8,20 @@ namespace MyTuringSystemMonitor.Rendering;
 /// <summary>Renders a theme to a GDI+ <see cref="Bitmap"/>. Windows-only (System.Drawing).</summary>
 public sealed class GdiThemeRenderer : IThemeRenderer
 {
+    /// <summary>
+    /// GDI+ objects — notably the cached private fonts shared by all themes — aren't thread-safe,
+    /// and the service renders theme previews for the web UI while the monitor loop is drawing.
+    /// Frames are small (a few ms), so simply serialise all rendering in the process.
+    /// </summary>
+    private static readonly object RenderGate = new();
+
     public Bitmap Render(Theme theme, SensorSnapshot snapshot, int width, int height)
+    {
+        lock (RenderGate)
+            return RenderCore(theme, snapshot, width, height);
+    }
+
+    private static Bitmap RenderCore(Theme theme, SensorSnapshot snapshot, int width, int height)
     {
         var bitmap = new Bitmap(Math.Max(1, width), Math.Max(1, height));
         try

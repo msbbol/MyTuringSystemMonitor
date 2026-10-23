@@ -52,7 +52,11 @@ public sealed class TextWidget : Widget
     /// <summary>Appended after the formatted value when set (mathoudebine SHOW_UNIT).</summary>
     public string Unit { get; init; } = string.Empty;
 
-    /// <summary>Shown in place of the value when the sensor is unavailable.</summary>
+    /// <summary>
+    /// Shown in place of the value when the sensor is unavailable. Empty means the widget draws
+    /// nothing at all — <see cref="Label"/> included — so a theme row for a device that is not
+    /// present (disk.3 on a two-drive machine) disappears instead of leaving its prefix behind.
+    /// </summary>
     public string Fallback { get; init; } = "--";
 
     public float FontSize { get; init; } = 24;
@@ -89,12 +93,15 @@ public sealed class TextWidget : Widget
             }
             else
             {
+                if (Fallback.Length == 0) return string.Empty;
                 valueText = Fallback;
             }
         }
         else
         {
-            valueText = snapshot.GetText(TextSensor!) ?? Fallback;
+            var text = snapshot.GetText(TextSensor!);
+            if (text is null && Fallback.Length == 0) return string.Empty;
+            valueText = text ?? Fallback;
         }
 
         return Label is null ? valueText : Label + valueText;
@@ -318,6 +325,111 @@ public sealed class SparklineWidget : Widget
     }
 
     private int Y0 => Y;
+}
+
+/// <summary>One line on a <see cref="ChartWidget"/>.</summary>
+public sealed class ChartSeries
+{
+    public string Sensor { get; init; } = string.Empty;
+    public string Color { get; init; } = "#35E0D0";
+}
+
+/// <summary>
+/// A history chart with several lines on shared axes (e.g. CPU, GPU, RAM and VRAM load in %).
+/// Keeps its own rolling history; the newest sample is at the right edge and the lines scroll left.
+/// Give each series the same colour as that metric's number elsewhere in the theme.
+/// </summary>
+public sealed class ChartWidget : Widget
+{
+    public List<ChartSeries> Series { get; init; } = new();
+    public double Min { get; init; }
+    public double Max { get; init; } = 100;
+    public int MaxSamples { get; init; } = 60;
+    public float Thickness { get; init; } = 2;
+
+    /// <summary>Horizontal guide lines between Min and Max (3 = the 25/50/75 % marks).</summary>
+    public int GridLines { get; init; } = 3;
+    public string GridColor { get; init; } = "#1B2A3D";
+
+    [JsonIgnore]
+    private readonly List<Queue<double>> _history = new();
+
+    /// <summary>Samples currently held for series <paramref name="index"/> (NaN = no reading). For tests.</summary>
+    public IReadOnlyList<double> History(int index) =>
+        index < _history.Count ? _history[index].ToArray() : Array.Empty<double>();
+
+    public override void Render(Graphics g, SensorSnapshot snapshot)
+    {
+        var w = Width > 0 ? Width : 200;
+        var h = Height > 0 ? Height : 60;
+        var capacity = Math.Max(2, MaxSamples);
+
+        while (_history.Count < Series.Count) _history.Add(new Queue<double>());
+        for (var i = 0; i < Series.Count; i++)
+        {
+            var queue = _history[i];
+            queue.Enqueue(snapshot.Get(Series[i].Sensor) ?? double.NaN);   // a gap, not a fake 0
+            while (queue.Count > capacity) queue.Dequeue();
+        }
+
+        var state = g.Save();
+        try
+        {
+            g.SetClip(new RectangleF(X, Y, w, h));
+
+            if (GridLines > 0)
+            {
+                using var gridPen = new Pen(ParseColor(GridColor, System.Drawing.Color.FromArgb(27, 42, 61)), 1)
+                {
+                    DashStyle = DashStyle.Dash,
+                };
+                for (var i = 1; i <= GridLines; i++)
+                {
+                    var gy = Y + h * i / (float)(GridLines + 1);
+                    g.DrawLine(gridPen, X, gy, X + w, gy);
+                }
+            }
+
+            var step = w / (float)(capacity - 1);
+            for (var s = 0; s < Series.Count; s++)
+            {
+                var samples = _history[s].ToArray();
+                using var pen = new Pen(ParseColor(Series[s].Color, System.Drawing.Color.DeepSkyBlue), Thickness)
+                {
+                    LineJoin = LineJoin.Round,
+                    StartCap = LineCap.Round,
+                    EndCap = LineCap.Round,
+                };
+
+                // Newest sample on the right edge; break the line wherever a reading was missing.
+                var run = new List<PointF>(samples.Length);
+                for (var i = 0; i < samples.Length; i++)
+                {
+                    var value = samples[i];
+                    if (double.IsNaN(value))
+                    {
+                        DrawRun(g, pen, run);
+                        continue;
+                    }
+
+                    var x = X + w - (samples.Length - 1 - i) * step;
+                    var fraction = Max > Min ? Math.Clamp((value - Min) / (Max - Min), 0, 1) : 0;
+                    run.Add(new PointF(x, (float)(Y + h - fraction * h)));
+                }
+                DrawRun(g, pen, run);
+            }
+        }
+        finally
+        {
+            g.Restore(state);
+        }
+    }
+
+    private static void DrawRun(Graphics g, Pen pen, List<PointF> run)
+    {
+        if (run.Count >= 2) g.DrawLines(pen, run.ToArray());
+        run.Clear();
+    }
 }
 
 /// <summary>A rounded rectangle panel — the card chrome used by the custom themes.</summary>

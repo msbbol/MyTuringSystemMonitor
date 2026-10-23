@@ -46,6 +46,8 @@ public static class ThemeLoader
         return new Theme
         {
             Name = dto.Name ?? "unnamed",
+            Orientation = ThemeOrientationHelper.Parse(dto.Orientation)
+                          ?? ThemeOrientationHelper.InferFromImage(background),
             Background = dto.Background ?? "#000000",
             BackgroundGradientTo = dto.BackgroundGradientTo,
             BackgroundImagePath = background,
@@ -67,6 +69,10 @@ public static class ThemeLoader
     private sealed class ThemeDto
     {
         public string? Name { get; set; }
+
+        /// <summary>"portrait" or "landscape"; omitted means infer from the background image.</summary>
+        public string? Orientation { get; set; }
+
         public string? Background { get; set; }
         public string? BackgroundGradientTo { get; set; }
 
@@ -95,8 +101,9 @@ public static class ThemeLoader
                 "panel" => JsonSerializer.Deserialize<PanelWidget>(raw, options)!,
                 "clock" => JsonSerializer.Deserialize<AnalogClockWidget>(raw, options)!,
                 "sparkline" => JsonSerializer.Deserialize<SparklineWidget>(raw, options)!,
+                "chart" => JsonSerializer.Deserialize<ChartWidget>(raw, options)!,
                 null => throw new JsonException("Widget is missing a \"type\" property."),
-                _ => throw new JsonException($"Unknown widget type '{type}'. Expected text/gauge/radial/datetime/panel/clock/sparkline."),
+                _ => throw new JsonException($"Unknown widget type '{type}'. Expected text/gauge/radial/datetime/panel/clock/sparkline/chart."),
             };
         }
 

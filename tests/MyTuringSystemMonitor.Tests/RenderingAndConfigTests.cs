@@ -68,6 +68,40 @@ public class RenderingAndConfigTests
         Assert.Equal(expectedH, h);
     }
 
+    [Theory]
+    // configured orientation, theme is landscape, expected — the reverse variant is preserved.
+    [InlineData("Portrait", true, "Landscape")]
+    [InlineData("ReversePortrait", true, "ReverseLandscape")]
+    [InlineData("Landscape", false, "Portrait")]
+    [InlineData("ReverseLandscape", false, "ReversePortrait")]
+    [InlineData("Landscape", true, "Landscape")]
+    public void AlignOrientation_rotates_onto_the_theme_axis(string configured, bool landscapeTheme, string expected)
+    {
+        Assert.Equal(expected, AppConfig.AlignOrientation(configured, landscapeTheme));
+    }
+
+    [Fact]
+    public void EffectiveOrientation_and_render_size_follow_the_theme()
+    {
+        var config = new AppConfig { Width = 320, Height = 480, Orientation = "Portrait" };
+
+        // A landscape theme rotates the panel and swaps the canvas...
+        Assert.Equal("Landscape", config.EffectiveOrientation(themeIsLandscape: true));
+        Assert.Equal((480, 320), config.RenderSize(themeIsLandscape: true));
+
+        // ...while a theme with no declared axis leaves the configured orientation alone.
+        Assert.Equal("Portrait", config.EffectiveOrientation(themeIsLandscape: null));
+        Assert.Equal((320, 480), config.RenderSize(themeIsLandscape: null));
+    }
+
+    [Fact]
+    public void ToDisplayOptions_uses_the_theme_axis()
+    {
+        var config = new AppConfig { Orientation = "Portrait" };
+        var options = config.ToDisplayOptions("COM4", themeIsLandscape: true);
+        Assert.Equal(DisplayOrientation.Landscape, options.Orientation);
+    }
+
     [Fact]
     public void AppConfig_parses_revision_and_orientation_case_insensitively()
     {

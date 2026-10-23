@@ -25,6 +25,13 @@ public interface IDisplayDevice : IDisposable
     /// <summary>Pushes a full frame to the screen. The bitmap should be <see cref="Width"/> x <see cref="Height"/>.</summary>
     void Display(Bitmap frame);
 
+    /// <summary>
+    /// Drops the current connection and opens it again with the same settings. Used to recover
+    /// after the device vanished (e.g. USB power-down during laptop sleep). Never resets the device.
+    /// Returns false if the device isn't reachable yet — the caller retries later.
+    /// </summary>
+    bool Reconnect();
+
     /// <summary>Blanks the screen (used on shutdown).</summary>
     void Clear();
 

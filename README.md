@@ -32,16 +32,61 @@ dotnet test
 Package versions are pinned to what `dotnet restore` resolved (i.e. what `dotnet add package`
 produces). Bump them with `dotnet add package <name>` rather than editing the `.csproj` by hand.
 
-## Run
+## Install as a Windows service (recommended)
+
+From an **elevated** PowerShell in the repo:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File install\install.ps1
+```
+
+This builds and installs three things:
+
+- **Windows service** `MyTuringSystemMonitor` (LocalSystem, starts with Windows, restarts itself
+  if it crashes). It drives the screen — no console window, no need to stay signed in — and, running
+  as LocalSystem, gives LibreHardwareMonitor the rights it needs for temperatures and fans. If the
+  screen isn't on USB yet when Windows starts, it keeps retrying every 10 s.
+- **Web control panel** at <http://localhost:5321/>, served by the service: live view of what's on
+  the screen, pause/resume/restart, all settings, a theme gallery with previews, and an activity
+  log. It only listens on localhost; writes require a custom header and a loopback `Host`, so other
+  websites open in your browser can't drive it.
+- **Tray icon** for every user at sign-in: its colour shows the state (teal running, amber
+  starting/reconnecting, grey paused, red display missing / service down); double-click opens the
+  control panel; the menu can pause/resume or restart the monitor and start/stop the service
+  (asks for UAC).
+
+Re-run the script to upgrade — settings are kept. `-SelfContained` bundles the .NET runtime.
+Remove with `install\uninstall.ps1` (add `-RemoveData` to delete settings too).
+
+A Windows service can't show UI, which is why the tray icon is a separate small app that talks to
+the service over the same local API as the web page.
+
+## Run from source (development)
 
 ```bash
 dotnet run --project src/MyTuringSystemMonitor
 ```
 
-Config and themes live in a shared per-user folder — `%LOCALAPPDATA%\MyTuringSystemMonitor\`
+Or run the service host in a console, with the web panel, against a throw-away data folder:
+
+```powershell
+$env:TURING_MONITOR_DATA = "$env:TEMP\turing-dev"; dotnet run --project src\MyTuringSystemMonitor.Service
+```
+
+Don't run the console monitor while the service is running — both would try to open the COM port.
+
+If the display drops out while running — typically when the laptop sleeps and the USB port loses
+power — the monitor logs it once and reconnects on its own (retrying after 2, 4, 8… up to 30 s),
+re-applying orientation and brightness. If Windows brings the device back on a different COM
+number and it's the only serial port present, the monitor follows it there. Reconnects never
+reset the device.
+
+Config and themes live in a machine-wide folder — `%ProgramData%\MyTuringSystemMonitor\`
 (`config.json` and `themes\`) — seeded from the files bundled with the app on first run, so the
-console runner and the configurator use the same settings. Press **Ctrl+C** to stop — the screen
-is blanked and powered off on the way out.
+service, tray, console runner and configurator all use the same settings. Settings from older
+versions (in `%LOCALAPPDATA%\MyTuringSystemMonitor\`) are copied over once. Set
+`TURING_MONITOR_DATA` to use a different folder. Press **Ctrl+C** to stop — the screen is blanked
+and powered off on the way out.
 
 ## Configurator (GUI)
 
@@ -54,7 +99,9 @@ dotnet run --project src/MyTuringSystemMonitor.Config
 
 It lets you pick the screen model, COM port, orientation, brightness, theme, and monitoring
 source, shows a live preview of the theme on the left, and has **Save settings**, **Save and run**
-(launches the console runner), **Open themes folder**, and **Edit theme**.
+(restarts the service with the new settings when it's running, otherwise launches the console
+runner), **Open themes folder**, and **Edit theme**. With the service installed, the web control
+panel covers all of this and more.
 
 ### Headless dry run (no hardware needed)
 
@@ -83,12 +130,13 @@ image maps to the panel with no stretch/shear/rotation.
 | `comPort`          | `"COM4"`             | Serial port, or `"AUTO"` to auto-detect (single-port systems)    |
 | `revision`         | `"RevisionA"`        | Screen protocol; `RevisionA` = 3.5"                              |
 | `brightness`       | `20`                 | 0–100 %, applied once at startup                                  |
-| `orientation`      | `"Portrait"`         | `Portrait` / `ReversePortrait` / `Landscape` / `ReverseLandscape`|
+| `orientation`      | `"Portrait"`         | `Portrait` / `ReversePortrait` / `Landscape` / `ReverseLandscape`. A theme that declares an axis overrides this — see [Themes](#themes) |
 | `resetOnStartup`   | `false`              | **Leave false** (see warning above)                              |
 | `refreshIntervalMs`| `1000`               | Frame interval                                                    |
 | `sensorProvider`   | `"Lhm"`              | `Lhm` (full, needs admin) · `PerfCounter` (CPU/RAM) · `Fake`     |
 | `displayProvider`  | `"Turing"`           | `Turing` (real screen) · `Null` (headless dry run)               |
 | `theme`            | `"3.5inchTheme2"`    | Theme **name** (JSON file name or YAML folder name under the themes dir) |
+| `webPort`          | `5321`               | Port of the localhost web control panel (service restart needed) |
 
 ## Themes
 
@@ -104,8 +152,17 @@ Two theme formats are supported, both discovered by name from the themes folder:
   (analogue clock), **`SystemPulse`** (portrait radial dashboard), and the "Obsidian Command"
   telemetry dashboard in both **`SystemPulsePortrait`** and **`SystemPulseLandscape`** (big CPU
   panel with a live line sparkline, plus GPU/memory/network/storage/thermals tiles). The landscape
-  one is 480×320: set `orientation` to `Landscape` and the canvas auto-swaps (the physical panel
-  reports 480×320 in that orientation).
+  one is 480×320.
+
+### Orientation follows the theme
+
+A theme declares the axis it was drawn for (`"orientation": "portrait" | "landscape"` in JSON,
+`DISPLAY_ORIENTATION` in a mathoudebine `theme.yaml`; if neither is present it's inferred from the
+background image's aspect). **Picking a theme rotates the screen to match** — no need to change the
+orientation setting by hand. Your reverse-variant preference is kept, so `ReversePortrait` + a
+landscape theme becomes `ReverseLandscape`. The configurator's Orientation dropdown updates as soon
+as you select a theme, and `orientation` in `config.json` is the fallback for themes that don't
+declare an axis.
 - **Stock-app themes (imported)** — the 35 themes from the bundled Turing/USBMonitor desktop app
   (`New themes/config/*.data`) are imported as folder themes (`<Name>/theme.json` +
   `background.png`): 9 portrait and 26 landscape, with their artwork, bar gauges, ring gauges and
@@ -132,12 +189,17 @@ Two theme formats are supported, both discovered by name from the themes folder:
   portrait panel — drop them in manually if you want to experiment.
 
 **Add more themes:** click *Open themes folder* in the configurator (or open
-`%LOCALAPPDATA%\MyTuringSystemMonitor\themes\`) and drop in a theme folder that contains a
+`%ProgramData%\MyTuringSystemMonitor\themes\`) and drop in a theme folder that contains a
 `theme.yaml` plus its assets. Fonts referenced by a theme are resolved from the app's `fonts\`
 folder (JetBrains Mono ships with the app); unknown fonts fall back to a system font.
 
+`gpu.load` is the busiest graphics adapter, measured like Task Manager from the Windows "GPU Engine"
+counters — on laptops with switchable graphics the integrated GPU does most of the work and the
+discrete one reads 0 % while asleep; `gpu.temp`/`gpu.power`/`gpu.mem` come from the discrete GPU via
+LibreHardwareMonitor.
+
 Sensor keys: `cpu.load`, `cpu.temp`, `cpu.power`, `cpu.clock`, `gpu.load`, `gpu.temp`,
-`gpu.power`, `gpu.mem`, `ram.load`, `ram.used`, `ram.total`, `disk.load`, `disk.used`,
+`gpu.power`, `gpu.mem`, `ram.load`, `ram.used`, `ram.free`, `ram.total`, `swap.load`, `swap.used`, `swap.total`, `disk.load`, `disk.used`,
 `disk.free`, `disk.total`, `net.down`, `net.up` (B/s — pair with `"humanize": "bytes"` on a text
 widget for 7.4M/860K), `proc.top.cpu`, and the clock pseudo-sensors `time.second`/`time.minute`/
 `time.hour12` and `sys.uptime`. Text-valued sensors bind via `"textSensor"` (e.g.

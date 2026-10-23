@@ -16,6 +16,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\MyTuringSystemMonitor\MyTuringSystemMonitor.csproj" />
+    <ProjectReference Include="..\..\src\MyTuringSystemMonitor.Service\MyTuringSystemMonitor.Service.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The service's request guard/validator use ASP.NET Core types. -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
   <ItemGroup>

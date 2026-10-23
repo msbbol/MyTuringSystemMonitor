@@ -31,6 +31,14 @@ public sealed class NullDisplayDevice : IDisplayDevice
         LastFrameSize = frame.Size;
     }
 
+    public int ReconnectCount { get; private set; }
+
+    public bool Reconnect()
+    {
+        ReconnectCount++;
+        return true;
+    }
+
     public void Clear() => ClearCount++;
 
     public void TurnOff() => TurnOffCount++;

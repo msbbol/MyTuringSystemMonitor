@@ -1,0 +1,79 @@
+{
+  "name": "SystemPulsePortraitLarge",
+  "orientation": "portrait",
+  "background": "#090D14",
+  "backgroundGradientTo": "#0C1626",
+  "widgets": [
+    { "type": "datetime", "format": "HH:mm", "x": 16, "y": 27, "anchor": "lm", "color": "#EAF2FF", "fontFamily": "Consolas", "fontSize": 34, "pixelFontSize": true, "bold": true },
+    { "type": "datetime", "format": "dddd", "x": 262, "y": 27, "anchor": "rm", "color": "#8B9BB4", "fontFamily": "Consolas", "fontSize": 18, "pixelFontSize": true, "bold": true },
+    { "type": "datetime", "format": "dd", "x": 304, "y": 27, "anchor": "rm", "color": "#EAF2FF", "fontFamily": "Consolas", "fontSize": 26, "pixelFontSize": true, "bold": true },
+
+    { "type": "panel", "x": 12, "y": 52, "width": 296, "height": 94, "fill": "#0F1826", "cornerRadius": 16 },
+    { "type": "text", "label": "CPU / PROCESSOR", "x": 28, "y": 66, "anchor": "lm", "color": "#5C6B82", "fontFamily": "Consolas", "fontSize": 9, "pixelFontSize": true, "bold": true },
+    { "type": "text", "label": "TEMP", "x": 296, "y": 66, "anchor": "rm", "color": "#5C6B82", "fontFamily": "Consolas", "fontSize": 9, "pixelFontSize": true, "bold": true },
+    { "type": "text", "sensor": "cpu.load", "format": "{0:F0}%", "x": 28, "y": 100, "anchor": "lm", "color": "#35E0D0", "fontFamily": "Consolas", "fontSize": 44, "pixelFontSize": true, "bold": true },
+    { "type": "text", "sensor": "cpu.temp", "format": "{0:F0}°C", "fallback": "--", "x": 296, "y": 100, "anchor": "rm", "color": "#F5A623", "fontFamily": "Consolas", "fontSize": 36, "pixelFontSize": true, "bold": true },
+    { "type": "text", "sensor": "cpu.fan", "format": "{0:F0} RPM", "fallback": "", "x": 296, "y": 131, "anchor": "rm", "color": "#8B9BB4", "fontFamily": "Consolas", "fontSize": 12, "pixelFontSize": true, "bold": true },
+    { "type": "text", "textSensor": "cpu.name", "fallback": "CPU", "x": 28, "y": 132, "anchor": "lm", "color": "#8B9BB4", "fontFamily": "Consolas", "fontSize": 10, "pixelFontSize": true, "bold": true },
+    { "type": "text", "label": "POWER", "x": 172, "y": 66, "anchor": "mm", "color": "#5C6B82", "fontFamily": "Consolas", "fontSize": 9, "pixelFontSize": true, "bold": true },
+    { "type": "text", "sensor": "cpu.power", "format": "{0:F0} W", "fallback": "--", "x": 172, "y": 100, "anchor": "mm", "color": "#C9D4E5", "fontFamily": "Consolas", "fontSize": 22, "pixelFontSize": true, "bold": true },
+
+    { "type": "panel", "x": 12, "y": 150, "width": 296, "height": 94, "fill": "#0F1826", "cornerRadius": 16 },
+    { "type": "text", "label": "GPU / GRAPHICS", "x": 28, "y": 164, "anchor": "lm", "color": "#5C6B82", "fontFamily": "Consolas", "fontSize": 9, "pixelFontSize": true, "bold": true },
+    { "type": "text", "label": "TEMP", "x": 296, "y": 164, "anchor": "rm", "color": "#5C6B82", "fontFamily": "Consolas", "fontSize": 9, "pixelFontSize": true, "bold": true },
+    { "type": "text", "sensor": "gpu.load", "format": "{0:F0}%", "fallback": "--", "x": 28, "y": 198, "anchor": "lm", "color": "#8B9CFF", "fontFamily": "Consolas", "fontSize": 44, "pixelFontSize": true, "bold": true },
+    { "type": "text", "sensor": "gpu.temp", "format": "{0:F0}°C", "fallback": "--", "x": 296, "y": 198, "anchor": "rm", "color": "#F5A623", "fontFamily": "Consolas", "fontSize": 36, "pixelFontSize": true, "bold": true },
+    { "type": "text", "label": "POWER", "x": 172, "y": 164, "anchor": "mm", "color": "#5C6B82", "fontFamily": "Consolas", "fontSize": 9, "pixelFontSize": true, "bold": true },
+    { "type": "text", "sensor": "gpu.power", "format": "{0:F0} W", "fallback": "--", "x": 172, "y": 198, "anchor": "mm", "color": "#C9D4E5", "fontFamily": "Consolas", "fontSize": 22, "pixelFontSize": true, "bold": true },
+
+    { "type": "text", "label": "FPS ", "sensor": "fps", "format": "{0:F0}", "fallback": "--", "x": 28, "y": 230, "anchor": "lm", "color": "#EAF2FF", "fontFamily": "Consolas", "fontSize": 18, "pixelFontSize": true, "bold": true },
+    { "type": "text", "textSensor": "fps.app", "fallback": "", "x": 172, "y": 230, "anchor": "mm", "color": "#5C6B82", "fontFamily": "Consolas", "fontSize": 10, "pixelFontSize": true, "bold": true },
+    { "type": "text", "sensor": "gpu.fan", "format": "{0:F0} RPM", "fallback": "", "x": 296, "y": 230, "anchor": "rm", "color": "#8B9BB4", "fontFamily": "Consolas", "fontSize": 12, "pixelFontSize": true, "bold": true },
+
+    { "type": "panel", "x": 12, "y": 248, "width": 296, "height": 106, "fill": "#0F1826", "cornerRadius": 16 },
+    { "type": "text", "label": "RAM", "x": 28, "y": 264, "anchor": "lm", "color": "#F472B6", "fontFamily": "Consolas", "fontSize": 9, "pixelFontSize": true, "bold": true },
+    { "type": "text", "sensor": "ram.load", "format": "{0:F0}%", "x": 56, "y": 265, "anchor": "lm", "color": "#F472B6", "fontFamily": "Consolas", "fontSize": 16, "pixelFontSize": true, "bold": true },
+    { "type": "text", "sensor": "ram.used", "format": "{0:F1} GB", "x": 150, "y": 266, "anchor": "rm", "color": "#8B9BB4", "fontFamily": "Consolas", "fontSize": 9, "pixelFontSize": true, "bold": true },
+    { "type": "text", "label": "VRAM", "x": 168, "y": 264, "anchor": "lm", "color": "#A3E635", "fontFamily": "Consolas", "fontSize": 9, "pixelFontSize": true, "bold": true },
+    { "type": "text", "sensor": "gpu.mem.load", "format": "{0:F0}%", "fallback": "--", "x": 204, "y": 265, "anchor": "lm", "color": "#A3E635", "fontFamily": "Consolas", "fontSize": 16, "pixelFontSize": true, "bold": true },
+    { "type": "text", "sensor": "gpu.mem", "format": "{0:F0} MB", "fallback": "", "x": 296, "y": 266, "anchor": "rm", "color": "#8B9BB4", "fontFamily": "Consolas", "fontSize": 9, "pixelFontSize": true, "bold": true },
+    {
+      "type": "chart", "x": 28, "y": 282, "width": 268, "height": 62, "min": 0, "max": 100, "maxSamples": 60, "thickness": 2, "gridLines": 3, "gridColor": "#1B2A3D",
+      "series": [
+        { "sensor": "ram.load", "color": "#F472B6" },
+        { "sensor": "gpu.mem.load", "color": "#A3E635" },
+        { "sensor": "gpu.load", "color": "#8B9CFF" },
+        { "sensor": "cpu.load", "color": "#35E0D0" }
+      ]
+    },
+
+    { "type": "panel", "x": 12, "y": 360, "width": 296, "height": 106, "fill": "#0F1826", "cornerRadius": 16 },
+    { "type": "text", "label": "DISK / NETWORK", "x": 26, "y": 374, "anchor": "lm", "color": "#5C6B82", "fontFamily": "Consolas", "fontSize": 9, "pixelFontSize": true, "bold": true },
+    { "type": "text", "label": "READ  / PEAK", "x": 191, "y": 374, "anchor": "rm", "color": "#5C6B82", "fontFamily": "Consolas", "fontSize": 8, "pixelFontSize": true, "bold": true },
+    { "type": "text", "label": "WRITE / PEAK", "x": 291, "y": 374, "anchor": "rm", "color": "#5C6B82", "fontFamily": "Consolas", "fontSize": 8, "pixelFontSize": true, "bold": true },
+
+    { "type": "text", "textSensor": "disk.1.name", "fallback": "", "x": 26, "y": 396, "anchor": "lm", "color": "#8B9BB4", "fontFamily": "Consolas", "fontSize": 13, "pixelFontSize": true, "bold": true },
+    { "type": "text", "sensor": "disk.1.read", "humanize": "bytes", "fallback": "", "x": 152, "y": 396, "anchor": "rm", "color": "#EAF2FF", "fontFamily": "Consolas", "fontSize": 12, "pixelFontSize": true, "bold": true },
+    { "type": "text", "label": "/ ", "sensor": "disk.1.read.peak", "humanize": "bytes", "fallback": "", "x": 158, "y": 396, "anchor": "lm", "color": "#5C6B82", "fontFamily": "Consolas", "fontSize": 10, "pixelFontSize": true, "bold": true },
+    { "type": "text", "sensor": "disk.1.write", "humanize": "bytes", "fallback": "", "x": 252, "y": 396, "anchor": "rm", "color": "#EAF2FF", "fontFamily": "Consolas", "fontSize": 12, "pixelFontSize": true, "bold": true },
+    { "type": "text", "label": "/ ", "sensor": "disk.1.write.peak", "humanize": "bytes", "fallback": "", "x": 258, "y": 396, "anchor": "lm", "color": "#5C6B82", "fontFamily": "Consolas", "fontSize": 10, "pixelFontSize": true, "bold": true },
+
+    { "type": "text", "textSensor": "disk.2.name", "fallback": "", "x": 26, "y": 418, "anchor": "lm", "color": "#8B9BB4", "fontFamily": "Consolas", "fontSize": 13, "pixelFontSize": true, "bold": true },
+    { "type": "text", "sensor": "disk.2.read", "humanize": "bytes", "fallback": "", "x": 152, "y": 418, "anchor": "rm", "color": "#EAF2FF", "fontFamily": "Consolas", "fontSize": 12, "pixelFontSize": true, "bold": true },
+    { "type": "text", "label": "/ ", "sensor": "disk.2.read.peak", "humanize": "bytes", "fallback": "", "x": 158, "y": 418, "anchor": "lm", "color": "#5C6B82", "fontFamily": "Consolas", "fontSize": 10, "pixelFontSize": true, "bold": true },
+    { "type": "text", "sensor": "disk.2.write", "humanize": "bytes", "fallback": "", "x": 252, "y": 418, "anchor": "rm", "color": "#EAF2FF", "fontFamily": "Consolas", "fontSize": 12, "pixelFontSize": true, "bold": true },
+    { "type": "text", "label": "/ ", "sensor": "disk.2.write.peak", "humanize": "bytes", "fallback": "", "x": 258, "y": 418, "anchor": "lm", "color": "#5C6B82", "fontFamily": "Consolas", "fontSize": 10, "pixelFontSize": true, "bold": true },
+
+    { "type": "text", "textSensor": "disk.3.name", "fallback": "", "x": 26, "y": 440, "anchor": "lm", "color": "#8B9BB4", "fontFamily": "Consolas", "fontSize": 13, "pixelFontSize": true, "bold": true },
+    { "type": "text", "sensor": "disk.3.read", "humanize": "bytes", "fallback": "", "x": 152, "y": 440, "anchor": "rm", "color": "#EAF2FF", "fontFamily": "Consolas", "fontSize": 12, "pixelFontSize": true, "bold": true },
+    { "type": "text", "label": "/ ", "sensor": "disk.3.read.peak", "humanize": "bytes", "fallback": "", "x": 158, "y": 440, "anchor": "lm", "color": "#5C6B82", "fontFamily": "Consolas", "fontSize": 10, "pixelFontSize": true, "bold": true },
+    { "type": "text", "sensor": "disk.3.write", "humanize": "bytes", "fallback": "", "x": 252, "y": 440, "anchor": "rm", "color": "#EAF2FF", "fontFamily": "Consolas", "fontSize": 12, "pixelFontSize": true, "bold": true },
+    { "type": "text", "label": "/ ", "sensor": "disk.3.write.peak", "humanize": "bytes", "fallback": "", "x": 258, "y": 440, "anchor": "lm", "color": "#5C6B82", "fontFamily": "Consolas", "fontSize": 10, "pixelFontSize": true, "bold": true },
+
+    { "type": "text", "textSensor": "net.1.name", "fallback": "", "x": 26, "y": 460, "anchor": "lm", "color": "#35E0D0", "fontFamily": "Consolas", "fontSize": 12, "pixelFontSize": true, "bold": true },
+    { "type": "text", "sensor": "net.1.down", "humanize": "bytes", "fallback": "", "x": 152, "y": 460, "anchor": "rm", "color": "#35E0D0", "fontFamily": "Consolas", "fontSize": 12, "pixelFontSize": true, "bold": true },
+    { "type": "text", "label": "/ ", "sensor": "net.1.down.peak", "humanize": "bytes", "fallback": "", "x": 158, "y": 460, "anchor": "lm", "color": "#5C6B82", "fontFamily": "Consolas", "fontSize": 10, "pixelFontSize": true, "bold": true },
+    { "type": "text", "sensor": "net.1.up", "humanize": "bytes", "fallback": "", "x": 252, "y": 460, "anchor": "rm", "color": "#35E0D0", "fontFamily": "Consolas", "fontSize": 12, "pixelFontSize": true, "bold": true },
+    { "type": "text", "label": "/ ", "sensor": "net.1.up.peak", "humanize": "bytes", "fallback": "", "x": 258, "y": 460, "anchor": "lm", "color": "#5C6B82", "fontFamily": "Consolas", "fontSize": 10, "pixelFontSize": true, "bold": true }
+  ]
+}

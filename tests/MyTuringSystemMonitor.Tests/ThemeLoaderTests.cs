@@ -42,6 +42,22 @@ public class ThemeLoaderTests
         Assert.ThrowsAny<Exception>(() => ThemeLoader.Parse(json));
     }
 
+    [Theory]
+    [InlineData("landscape", ThemeOrientation.Landscape)]
+    [InlineData("Portrait", ThemeOrientation.Portrait)]
+    public void Parse_reads_declared_orientation(string value, ThemeOrientation expected)
+    {
+        var theme = ThemeLoader.Parse($$"""{ "name": "t", "orientation": "{{value}}", "widgets": [] }""");
+        Assert.Equal(expected, theme.Orientation);
+    }
+
+    [Fact]
+    public void Parse_leaves_orientation_unset_when_not_declared()
+    {
+        var theme = ThemeLoader.Parse("""{ "name": "t", "widgets": [] }""");
+        Assert.Null(theme.Orientation);
+    }
+
     [Fact]
     public void Parse_resolves_background_image_relative_to_theme_file()
     {

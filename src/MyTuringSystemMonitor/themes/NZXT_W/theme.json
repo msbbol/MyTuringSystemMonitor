@@ -1,5 +1,6 @@
-{
+﻿{
   "name": "NZXT_W",
+  "orientation": "landscape",
   "background": "#000000",
   "backgroundImage": "background.png",
   "widgets": [

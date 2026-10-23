@@ -1,5 +1,6 @@
 {
   "name": "DeskDisplay",
+  "orientation": "portrait",
   "background": "#0C1E38",
   "backgroundGradientTo": "#0A1424",
   "widgets": [

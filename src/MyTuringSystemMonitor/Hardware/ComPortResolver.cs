@@ -23,6 +23,24 @@ public static class ComPortResolver
     /// TODO (nice-to-have): match by known VID/PID or USB serial string (USB35INCHIPS /
     /// USB35INCHIPSV2) via SetupAPI/WMI so AUTO works even with several serial devices present.
     /// </remarks>
+    /// <summary>
+    /// Port to use when re-opening after the device dropped off USB (sleep/wake re-enumerates it
+    /// and the COM number can change). Keeps the configured port while it exists; if it has gone
+    /// and exactly one serial port is present, follows the device there. Never throws.
+    /// </summary>
+    public static string ResolveForReconnect(string configured, string lastUsed, IReadOnlyList<string>? available = null)
+    {
+        available ??= AvailablePorts();
+
+        if (string.Equals(configured, Auto, StringComparison.OrdinalIgnoreCase))
+            return available.Count == 1 ? available[0] : lastUsed;
+
+        if (available.Contains(configured, StringComparer.OrdinalIgnoreCase))
+            return configured;
+
+        return available.Count == 1 ? available[0] : configured;
+    }
+
     public static string Resolve(string configured)
     {
         if (!string.Equals(configured, Auto, StringComparison.OrdinalIgnoreCase))

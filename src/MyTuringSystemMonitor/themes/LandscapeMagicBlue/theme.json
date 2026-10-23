@@ -1,5 +1,6 @@
-{
+﻿{
   "name": "LandscapeMagicBlue",
+  "orientation": "landscape",
   "background": "#000000",
   "backgroundImage": "background.png",
   "widgets": [

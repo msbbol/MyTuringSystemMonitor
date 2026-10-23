@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Turing System Monitor</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='7' y='3' width='18' height='26' rx='3' fill='%230F1826' stroke='%2335E0D0' stroke-width='2'/%3E%3Crect x='11' y='9' width='10' height='3' rx='1' fill='%2335E0D0'/%3E%3Crect x='11' y='15' width='7' height='3' rx='1' fill='%2335E0D0'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <rect x="7" y="3" width="18" height="26" rx="3" />
+        <rect class="fill" x="11" y="9" width="10" height="3" rx="1" />
+        <rect class="fill" x="11" y="15" width="7" height="3" rx="1" />
+      </svg>
+      <div>
+        <h1>Turing System Monitor</h1>
+        <p class="sub" id="service-meta">Connecting…</p>
+      </div>
+    </div>
+    <span class="pill" id="state-pill" data-state="unknown"><span class="dot"></span><span id="state-text">Connecting</span></span>
+  </header>
+
+  <div class="banner" id="offline" hidden>
+    The monitor service isn't responding. Check that the <b>MyTuringSystemMonitor</b> service is running.
+  </div>
+
+  <main class="layout">
+    <section class="card live" aria-labelledby="live-title">
+      <div class="card-head">
+        <h2 id="live-title">Live display</h2>
+        <div class="actions">
+          <button type="button" class="btn" id="btn-pause">Pause</button>
+          <button type="button" class="btn" id="btn-restart">Restart</button>
+        </div>
+      </div>
+
+      <div class="screen" id="screen" data-orientation="portrait">
+        <img id="frame" alt="Current image on the display" hidden>
+        <p class="screen-empty" id="frame-empty">No frame yet</p>
+      </div>
+
+      <p class="error" id="last-error" hidden></p>
+
+      <dl class="facts">
+        <div><dt>Theme</dt><dd id="f-theme">—</dd></div>
+        <div><dt>Orientation</dt><dd id="f-orientation">—</dd></div>
+        <div><dt>Resolution</dt><dd id="f-resolution">—</dd></div>
+        <div><dt>Port</dt><dd id="f-port">—</dd></div>
+        <div><dt>Sensors</dt><dd id="f-sensors">—</dd></div>
+        <div><dt>Frames</dt><dd id="f-frames">—</dd></div>
+        <div><dt>Last frame</dt><dd id="f-last">—</dd></div>
+        <div><dt>Refresh</dt><dd id="f-refresh">—</dd></div>
+      </dl>
+    </section>
+
+    <section class="card settings" aria-labelledby="settings-title">
+      <div class="card-head">
+        <h2 id="settings-title">Settings</h2>
+      </div>
+
+      <form id="settings" novalidate>
+        <fieldset>
+          <legend>Display</legend>
+
+          <label class="field">
+            <span>COM port</span>
+            <span class="with-button">
+              <select name="comPort" id="comPort"></select>
+              <button type="button" class="btn icon" id="btn-ports" title="Rescan ports" aria-label="Rescan ports">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v5h-5"/></svg>
+              </button>
+            </span>
+            <small class="field-error" data-for="comPort"></small>
+          </label>
+
+          <label class="field">
+            <span>Screen model</span>
+            <select name="revision">
+              <option value="RevisionA">Turing 3.5″ (Revision A)</option>
+              <option value="RevisionB">Revision B (3.5″)</option>
+              <option value="RevisionC">Revision C (5″)</option>
+              <option value="RevisionE">Revision E (8.8″)</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Orientation</span>
+            <select name="orientation" id="orientation">
+              <option value="Portrait">Portrait</option>
+              <option value="ReversePortrait">Reverse portrait</option>
+              <option value="Landscape">Landscape</option>
+              <option value="ReverseLandscape">Reverse landscape</option>
+            </select>
+            <small class="hint">Themes rotate the screen to the way they were drawn; the “reverse” choice is kept.</small>
+          </label>
+
+          <label class="field">
+            <span>Brightness <output id="brightness-out">20%</output></span>
+            <input type="range" name="brightness" id="brightness" min="0" max="100" step="1">
+          </label>
+
+          <label class="field">
+            <span>Output</span>
+            <select name="displayProvider">
+              <option value="Turing">Turing smart screen</option>
+              <option value="Null">None (dry run, no port)</option>
+            </select>
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Monitoring</legend>
+
+          <label class="field">
+            <span>Sensors</span>
+            <select name="sensorProvider">
+              <option value="Lhm">LibreHardwareMonitor (full)</option>
+              <option value="PerfCounter">Performance counters (CPU/RAM)</option>
+              <option value="Fake">Demo data</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Refresh interval</span>
+            <span class="with-suffix">
+              <input type="number" name="refreshIntervalMs" min="100" max="60000" step="100">
+              <span class="suffix">ms</span>
+            </span>
+            <small class="field-error" data-for="refreshIntervalMs"></small>
+          </label>
+
+          <label class="field">
+            <span>Control panel port</span>
+            <input type="number" name="webPort" min="1024" max="65535">
+            <small class="hint">Takes effect after the service restarts.</small>
+            <small class="field-error" data-for="webPort"></small>
+          </label>
+        </fieldset>
+      </form>
+    </section>
+
+    <section class="card themes" aria-labelledby="themes-title">
+      <div class="card-head wrap">
+        <h2 id="themes-title">Themes <span class="count" id="theme-count"></span></h2>
+        <div class="theme-tools">
+          <div class="segmented" role="radiogroup" aria-label="Filter by orientation">
+            <button type="button" role="radio" aria-checked="true" data-filter="all">All</button>
+            <button type="button" role="radio" aria-checked="false" data-filter="portrait">Portrait</button>
+            <button type="button" role="radio" aria-checked="false" data-filter="landscape">Landscape</button>
+          </div>
+          <input type="search" id="theme-search" placeholder="Search themes" aria-label="Search themes">
+        </div>
+      </div>
+      <small class="field-error" data-for="theme"></small>
+      <div class="theme-grid" id="themes" role="listbox" aria-label="Themes"></div>
+    </section>
+
+    <section class="card sensors" aria-labelledby="sensors-title">
+      <div class="card-head">
+        <h2 id="sensors-title">Sensors</h2>
+        <small class="hint">What the monitor reads right now</small>
+      </div>
+      <div class="sensor-groups" id="sensors"><p class="empty">Waiting for the first reading…</p></div>
+    </section>
+
+    <section class="card logs" aria-labelledby="logs-title">
+      <div class="card-head">
+        <h2 id="logs-title">Activity</h2>
+      </div>
+      <ol class="log" id="log"></ol>
+    </section>
+  </main>
+
+  <div class="savebar" id="savebar" hidden>
+    <span id="savebar-text">Unsaved changes</span>
+    <div class="actions">
+      <button type="button" class="btn ghost" id="btn-discard">Discard</button>
+      <button type="button" class="btn primary" id="btn-save">Save &amp; apply</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

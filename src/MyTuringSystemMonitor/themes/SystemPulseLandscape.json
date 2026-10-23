@@ -1,5 +1,6 @@
 {
   "name": "SystemPulseLandscape",
+  "orientation": "landscape",
   "background": "#090D14",
   "backgroundGradientTo": "#0C1626",
   "widgets": [

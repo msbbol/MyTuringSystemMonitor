@@ -1,5 +1,6 @@
-{
+﻿{
   "name": "theme 06",
+  "orientation": "landscape",
   "background": "#000000",
   "backgroundImage": "background.png",
   "widgets": [

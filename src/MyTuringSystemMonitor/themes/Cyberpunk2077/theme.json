@@ -1,5 +1,6 @@
-{
+﻿{
   "name": "Cyberpunk2077",
+  "orientation": "portrait",
   "background": "#000000",
   "backgroundImage": "background.png",
   "widgets": [

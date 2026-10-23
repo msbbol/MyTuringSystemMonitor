@@ -1,5 +1,6 @@
-{
+﻿{
   "name": "MagicBlue",
+  "orientation": "portrait",
   "background": "#000000",
   "backgroundImage": "background.png",
   "widgets": [
