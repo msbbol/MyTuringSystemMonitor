@@ -45,3 +45,30 @@ public sealed record DisplayDeviceOptions
     public int FallbackWidth { get; init; } = 320;
     public int FallbackHeight { get; init; } = 480;
 }
+
+/// <summary>Everything <see cref="WifiDisplayDevice"/> needs to reach the ESP32 panel over the network.</summary>
+public sealed record WifiDisplayOptions
+{
+    /// <summary>"AUTO" (find the panel with a UDP broadcast), a hostname such as <c>turing-esp32-a1b2.local</c>, or an IP.</summary>
+    public string Host { get; init; } = WifiDisplayDevice.Auto;
+    public int Port { get; init; } = WifiDisplayDevice.DefaultPort;
+    public int DiscoveryPort { get; init; } = WifiDisplayDevice.DefaultDiscoveryPort;
+
+    /// <summary>
+    /// Size the theme is rendered at (e.g. 320x480). Frames that don't match the panel are scaled
+    /// to fit and centred, so the 3.5" themes show unchanged on the square 480x480 panel.
+    /// </summary>
+    public int RenderWidth { get; init; } = 320;
+    public int RenderHeight { get; init; } = 480;
+
+    /// <summary>Clockwise rotation of the panel in quarter turns (0–3), applied on the device.</summary>
+    public int QuarterTurns { get; init; }
+
+    /// <summary>Brightness 0–100 (%), applied whenever the connection is (re)established.</summary>
+    public int BrightnessPercent { get; init; } = 20;
+
+    public TimeSpan ConnectTimeout { get; init; } = TimeSpan.FromSeconds(3);
+
+    /// <summary>How long to wait for the panel to confirm a frame before treating it as gone.</summary>
+    public TimeSpan ResponseTimeout { get; init; } = TimeSpan.FromSeconds(5);
+}

@@ -107,7 +107,9 @@ function renderStatus({ monitor: m, service: s }) {
   $("f-theme").textContent = m.theme || "—";
   $("f-orientation").textContent = ORIENTATION_LABELS[m.orientation] || "—";
   $("f-resolution").textContent = m.width ? `${m.width} × ${m.height}` : "—";
-  $("f-port").textContent = m.displayProvider === "Null" ? "none (dry run)" : (m.port || "—");
+  $("f-port").textContent = m.displayProvider === "Null" ? "none (dry run)"
+    : m.displayProvider === "Esp32Wifi" ? (m.port ? `Wi-Fi ${m.port}` : "Wi-Fi (searching…)")
+    : (m.port || "—");
   $("f-sensors").textContent = SENSOR_LABELS[m.sensorProvider] || m.sensorProvider;
   $("f-frames").textContent = m.framesShown.toLocaleString();
   $("f-last").textContent = timeAgo(m.lastFrameAt);
@@ -174,6 +176,9 @@ function fillForm(config) {
   ensurePortOption(config.comPort);
   for (const name of ["comPort", "revision", "orientation", "displayProvider", "sensorProvider"])
     form.elements[name].value = config[name];
+  form.elements.wifiHost.value = config.wifiHost || "AUTO";
+  form.elements.wifiRotation.value = String(config.wifiRotation || 0);
+  updateProviderFields();
   form.elements.brightness.value = config.brightness;
   form.elements.refreshIntervalMs.value = config.refreshIntervalMs;
   form.elements.webPort.value = config.webPort;
@@ -191,6 +196,8 @@ function readForm() {
     orientation: el.orientation.value,
     brightness: Number(el.brightness.value),
     displayProvider: el.displayProvider.value,
+    wifiHost: el.wifiHost.value.trim() || "AUTO",
+    wifiRotation: Number(el.wifiRotation.value),
     sensorProvider: el.sensorProvider.value,
     refreshIntervalMs: Number(el.refreshIntervalMs.value),
     webPort: Number(el.webPort.value),
@@ -217,8 +224,16 @@ function clearFieldErrors() {
   document.querySelectorAll(".field-error").forEach((el) => { el.textContent = ""; });
 }
 
+// Only show the settings that apply to the chosen output (COM port for USB, address for Wi-Fi).
+function updateProviderFields() {
+  const provider = form.elements.displayProvider.value;
+  for (const field of form.querySelectorAll("[data-provider]"))
+    field.hidden = field.dataset.provider !== provider;
+}
+
 form.addEventListener("input", (event) => {
   if (event.target.name === "brightness") updateBrightnessLabel();
+  if (event.target.name === "displayProvider") updateProviderFields();
   updateDirty();
 });
 form.addEventListener("change", updateDirty);

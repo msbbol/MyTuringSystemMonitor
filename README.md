@@ -88,6 +88,30 @@ versions (in `%LOCALAPPDATA%\MyTuringSystemMonitor\`) are copied over once. Set
 `TURING_MONITOR_DATA` to use a different folder. Press **Ctrl+C** to stop — the screen is blanked
 and powered off on the way out.
 
+## ESP32 Wi-Fi display (ESP32-4848S040)
+
+Besides the USB screen, the monitor can drive a **Guition ESP32-4848S040** (ESP32-S3, 4" 480×480
+ST7701 panel — including the `C_I` capacitive 86-box variant) over Wi-Fi. The PC renders the theme
+as usual and streams only the changed rectangles as RGB565 over TCP, so a typical frame is a few KB.
+
+1. Flash the firmware in [`firmware/esp32-4848s040`](firmware/esp32-4848s040) with PlatformIO:
+   `pio run -t upload` from that folder (USB-C cable; the board shows up as a COM port).
+2. On first boot the panel opens the Wi-Fi network **TuringESP32-Setup**. Join it from a phone,
+   pick your Wi-Fi in the page that opens (or go to <http://192.168.4.1>), and save.
+3. The panel shows *Waiting for PC…* with its IP and hostname. In the control panel (or
+   configurator) set **Output** to *ESP32 Wi-Fi display*; leave the address on `AUTO` or enter the
+   IP shown on the screen.
+
+The 320×480 themes are drawn 1:1 in the middle of the square panel (black bars left/right, or
+top/bottom for landscape themes). For a theme that fills the panel, set `width`/`height` to 480.
+If the panel loses the PC for 30 s (sleep, network drop) it shows *Waiting for PC…* again; the
+monitor reconnects on its own like it does for the USB screen. To change Wi-Fi networks, type
+`wifi-reset` in the serial monitor (`pio device monitor`), or just move the panel out of range of
+the old network — it re-opens the setup network when it can't connect.
+
+Ports: TCP 47800 (frames) and UDP 47801 (discovery). The panel accepts frames from any machine on
+the LAN; one PC at a time (a new connection takes over).
+
 ## Configurator (GUI)
 
 A WinForms configuration app (like the mathoudebine `configure.py`) edits the settings, previews
@@ -134,7 +158,9 @@ image maps to the panel with no stretch/shear/rotation.
 | `resetOnStartup`   | `false`              | **Leave false** (see warning above)                              |
 | `refreshIntervalMs`| `1000`               | Frame interval                                                    |
 | `sensorProvider`   | `"Lhm"`              | `Lhm` (full, needs admin) · `PerfCounter` (CPU/RAM) · `Fake`     |
-| `displayProvider`  | `"Turing"`           | `Turing` (real screen) · `Null` (headless dry run)               |
+| `displayProvider`  | `"Turing"`           | `Turing` (real screen) · `Esp32Wifi` (ESP32 panel over Wi-Fi) · `Null` (headless dry run) |
+| `wifiHost`         | `"AUTO"`             | ESP32 panel address: `AUTO` (UDP discovery), an IP, or `turing-esp32-xxxx.local` |
+| `wifiRotation`     | `0`                  | ESP32 panel mounting rotation in clockwise quarter turns (0–3); `Reverse…` orientations add 2 |
 | `theme`            | `"3.5inchTheme2"`    | Theme **name** (JSON file name or YAML folder name under the themes dir) |
 | `webPort`          | `5321`               | Port of the localhost web control panel (service restart needed) |
 

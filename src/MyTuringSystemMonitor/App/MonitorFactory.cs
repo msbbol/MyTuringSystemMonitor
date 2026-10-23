@@ -33,6 +33,9 @@ public static class MonitorFactory
     public static bool IsNullDisplay(AppConfig config) =>
         string.Equals(config.DisplayProvider, "Null", StringComparison.OrdinalIgnoreCase);
 
+    public static bool IsWifiDisplay(AppConfig config) =>
+        string.Equals(config.DisplayProvider, "Esp32Wifi", StringComparison.OrdinalIgnoreCase);
+
     /// <summary>
     /// Creates (but does not open) the display for <paramref name="theme"/>. Throws
     /// <see cref="InvalidOperationException"/> when the COM port can't be resolved.
@@ -46,6 +49,14 @@ public static class MonitorFactory
             var (w, h) = config.RenderSize(landscape);
             log?.Invoke($"Display: Null (headless dry run) at {w}x{h} — no serial port opened.");
             return new NullDisplayDevice(w, h);
+        }
+
+        if (IsWifiDisplay(config))
+        {
+            var options = config.ToWifiOptions(landscape);
+            log?.Invoke($"Display: ESP32 Wi-Fi panel at {options.Host}, brightness {config.Brightness}%, " +
+                        $"orientation {config.EffectiveOrientation(landscape)}, rendering at {options.RenderWidth}x{options.RenderHeight}");
+            return new WifiDisplayDevice(options, log);
         }
 
         var port = ComPortResolver.Resolve(config.ComPort);

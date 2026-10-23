@@ -36,8 +36,23 @@ public sealed class AppConfig
     /// </summary>
     public bool FrameRateCounter { get; set; } = true;
 
-    /// <summary>"Turing" (the real serial display) or "Null" (headless dry run: renders frames, no port).</summary>
+    /// <summary>
+    /// "Turing" (the real serial display), "Esp32Wifi" (ESP32-4848S040 panel over Wi-Fi) or
+    /// "Null" (headless dry run: renders frames, no port).
+    /// </summary>
     public string DisplayProvider { get; set; } = "Turing";
+
+    /// <summary>
+    /// Address of the ESP32 Wi-Fi panel: "AUTO" (find it on the local network), a hostname such as
+    /// <c>turing-esp32-a1b2.local</c>, or an IP address. Only used with <see cref="DisplayProvider"/> "Esp32Wifi".
+    /// </summary>
+    public string WifiHost { get; set; } = WifiDisplayDevice.Auto;
+
+    /// <summary>
+    /// Extra clockwise rotation of the ESP32 panel in quarter turns (0–3), for however it's
+    /// mounted. The "Reverse…" orientations add a half turn on top.
+    /// </summary>
+    public int WifiRotation { get; set; }
 
     /// <summary>Theme name (folder name for YAML themes, file name without extension for JSON themes).</summary>
     public string? Theme { get; set; } = "default";
@@ -98,4 +113,18 @@ public sealed class AppConfig
         FallbackWidth = Width,
         FallbackHeight = Height,
     };
+
+    public WifiDisplayOptions ToWifiOptions(bool? themeIsLandscape = null)
+    {
+        var (w, h) = RenderSize(themeIsLandscape);
+        var reversed = EffectiveOrientation(themeIsLandscape).StartsWith("Reverse", StringComparison.OrdinalIgnoreCase);
+        return new WifiDisplayOptions
+        {
+            Host = string.IsNullOrWhiteSpace(WifiHost) ? WifiDisplayDevice.Auto : WifiHost.Trim(),
+            RenderWidth = w,
+            RenderHeight = h,
+            QuarterTurns = (((WifiRotation + (reversed ? 2 : 0)) % 4) + 4) % 4,
+            BrightnessPercent = Brightness,
+        };
+    }
 }

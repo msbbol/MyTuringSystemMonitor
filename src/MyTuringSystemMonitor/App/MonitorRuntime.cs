@@ -166,7 +166,12 @@ public sealed class MonitorRuntime : IAsyncDisposable
                 theme is null ? null : config.EffectiveOrientation(landscape),
                 device?.Width ?? 0,
                 device?.Height ?? 0,
-                (device as TuringDisplayDevice)?.PortName,
+                device switch
+                {
+                    TuringDisplayDevice turing => turing.PortName,
+                    WifiDisplayDevice wifi => wifi.Endpoint,
+                    _ => null,
+                },
                 config.DisplayProvider,
                 config.SensorProvider,
                 config.RefreshIntervalMs,

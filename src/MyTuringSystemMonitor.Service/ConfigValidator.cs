@@ -8,7 +8,7 @@ public static class ConfigValidator
     private static readonly string[] Revisions = ["RevisionA", "RevisionB", "RevisionC", "RevisionE"];
     private static readonly string[] Orientations = ["Portrait", "ReversePortrait", "Landscape", "ReverseLandscape"];
     private static readonly string[] SensorProviders = ["Lhm", "PerfCounter", "Fake"];
-    private static readonly string[] DisplayProviders = ["Turing", "Null"];
+    private static readonly string[] DisplayProviders = ["Turing", "Esp32Wifi", "Null"];
 
     public static Dictionary<string, string[]> Validate(AppConfig config, ThemeGallery gallery) =>
         Validate(config, gallery.Exists);
@@ -34,6 +34,14 @@ public static class ConfigValidator
 
         if (!DisplayProviders.Contains(config.DisplayProvider, StringComparer.OrdinalIgnoreCase))
             Fail("displayProvider", "Unknown display provider.");
+
+        if (string.IsNullOrWhiteSpace(config.WifiHost) ||
+            !(config.WifiHost.Trim().Equals(MyTuringSystemMonitor.Hardware.WifiDisplayDevice.Auto, StringComparison.OrdinalIgnoreCase) ||
+              Uri.CheckHostName(config.WifiHost.Trim()) is UriHostNameType.Dns or UriHostNameType.IPv4 or UriHostNameType.IPv6))
+            Fail("wifiHost", "Use AUTO, a hostname like turing-esp32-a1b2.local, or an IP address.");
+
+        if (config.WifiRotation is < 0 or > 3)
+            Fail("wifiRotation", "Rotation must be 0, 90, 180 or 270°.");
 
         if (config.Brightness is < 0 or > 100)
             Fail("brightness", "Brightness must be between 0 and 100.");

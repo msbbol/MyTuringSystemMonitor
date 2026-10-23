@@ -25,6 +25,7 @@ public sealed class MainForm : Form
     private readonly ComboBox _theme = new();
     private readonly ComboBox _sensors = new();
     private readonly ComboBox _display = new();
+    private readonly TextBox _wifiHost = new();
     private readonly NumericUpDown _refresh = new();
 
     public MainForm()
@@ -33,8 +34,8 @@ public sealed class MainForm : Form
 
         Text = "Turing System Monitor configuration";
         StartPosition = FormStartPosition.CenterScreen;
-        ClientSize = new Size(900, 620);
-        MinimumSize = new Size(760, 620);
+        ClientSize = new Size(900, 660);
+        MinimumSize = new Size(760, 660);
         Font = new Font("Segoe UI", 9.5f);
         BackColor = Color.White;
 
@@ -131,10 +132,14 @@ public sealed class MainForm : Form
         _display.Items.AddRange(new object[]
         {
             new Item("Turing Smart Screen", "Turing"),
+            new Item("ESP32 Wi-Fi display (ESP32-4848S040)", "Esp32Wifi"),
             new Item("None (headless dry run)", "Null"),
         });
+        _display.SelectedIndexChanged += (_, _) => _wifiHost.Enabled = TagOf(_display) == "Esp32Wifi";
         AddRow("Display output", _display, rightX, labelW, controlX, controlW, ref y);
 
+        _wifiHost.PlaceholderText = "AUTO, IP or turing-esp32-xxxx.local";
+        AddRow("Wi-Fi display address", _wifiHost, rightX, labelW, controlX, controlW, ref y);
 
         _refresh.Minimum = 100;
         _refresh.Maximum = 60000;
@@ -218,6 +223,8 @@ public sealed class MainForm : Form
         SelectByTag(_orientation, _config.Orientation, 0);
         SelectByTag(_sensors, _config.SensorProvider, 0);
         SelectByTag(_display, _config.DisplayProvider, 0);
+        _wifiHost.Text = _config.WifiHost;
+        _wifiHost.Enabled = TagOf(_display) == "Esp32Wifi";
 
         _brightness.Value = Math.Clamp(_config.Brightness, 0, 100);
         _brightnessValue.Text = $"{_brightness.Value}%";
@@ -241,6 +248,7 @@ public sealed class MainForm : Form
         _config.Theme = _theme.SelectedItem?.ToString() ?? _config.Theme;
         _config.SensorProvider = TagOf(_sensors) ?? _config.SensorProvider;
         _config.DisplayProvider = TagOf(_display) ?? _config.DisplayProvider;
+        _config.WifiHost = string.IsNullOrWhiteSpace(_wifiHost.Text) ? WifiDisplayDevice.Auto : _wifiHost.Text.Trim();
         _config.RefreshIntervalMs = (int)_refresh.Value;
     }
 

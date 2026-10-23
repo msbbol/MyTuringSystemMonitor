@@ -66,6 +66,33 @@
           <legend>Display</legend>
 
           <label class="field">
+            <span>Output</span>
+            <select name="displayProvider" id="displayProvider">
+              <option value="Turing">Turing smart screen (USB)</option>
+              <option value="Esp32Wifi">ESP32 Wi-Fi display (ESP32-4848S040)</option>
+              <option value="Null">None (dry run, no port)</option>
+            </select>
+          </label>
+
+          <label class="field" data-provider="Esp32Wifi">
+            <span>Wi-Fi display address</span>
+            <input type="text" name="wifiHost" placeholder="AUTO" spellcheck="false" autocomplete="off">
+            <small class="hint">AUTO finds the panel on your network; or enter the IP / hostname shown on its screen.</small>
+            <small class="field-error" data-for="wifiHost"></small>
+          </label>
+
+          <label class="field" data-provider="Esp32Wifi">
+            <span>Panel rotation</span>
+            <select name="wifiRotation">
+              <option value="0">0°</option>
+              <option value="1">90° clockwise</option>
+              <option value="2">180°</option>
+              <option value="3">270° clockwise</option>
+            </select>
+            <small class="hint">How the panel is mounted. Smaller themes are centred on the square screen.</small>
+          </label>
+
+          <label class="field" data-provider="Turing">
             <span>COM port</span>
             <span class="with-button">
               <select name="comPort" id="comPort"></select>
@@ -76,7 +103,7 @@
             <small class="field-error" data-for="comPort"></small>
           </label>
 
-          <label class="field">
+          <label class="field" data-provider="Turing">
             <span>Screen model</span>
             <select name="revision">
               <option value="RevisionA">Turing 3.5″ (Revision A)</option>
@@ -100,14 +127,6 @@
           <label class="field">
             <span>Brightness <output id="brightness-out">20%</output></span>
             <input type="range" name="brightness" id="brightness" min="0" max="100" step="1">
-          </label>
-
-          <label class="field">
-            <span>Output</span>
-            <select name="displayProvider">
-              <option value="Turing">Turing smart screen</option>
-              <option value="Null">None (dry run, no port)</option>
-            </select>
           </label>
         </fieldset>
 
